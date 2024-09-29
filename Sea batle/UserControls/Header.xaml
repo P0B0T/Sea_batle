@@ -1,0 +1,108 @@
+﻿<UserControl
+    x:Class="Sea_batle.UserControls.Header"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Sea_batle.UserControls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    d:DesignHeight="30"
+    d:DesignWidth="800"
+    Loaded="Header_Loaded"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <Style BasedOn="{StaticResource BaseButton}" TargetType="Button">
+            <Setter Property="Width" Value="30" />
+            <Setter Property="Height" Value="30" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+
+        <Image />
+
+        <TextBlock
+            Name="TitleTblock"
+            Width="165"
+            Margin="35,0,0,0"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Center" />
+
+        <Grid
+            Width="110"
+            Margin="0,5,5,0"
+            HorizontalAlignment="Right">
+
+            <Button Name="CollapseBtn" Click="CollapseBtn_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/img/Icons/Collapse.png" />
+                </Button.Background>
+            </Button>
+            <!--  иконка от Circlon Tech  -->
+
+            <Button
+                Name="MaximizeBtn"
+                HorizontalAlignment="Center"
+                Click="MaximizeBtn_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/img/Icons/Maximize.png" />
+                </Button.Background>
+            </Button>
+            <!--  иконка от karthiks_18  -->
+
+            <Button
+                Name="MinimazeBtn"
+                HorizontalAlignment="Center"
+                Click="MinimazeBtn_Click"
+                Visibility="Hidden">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/img/Icons/Minimaze.png" />
+                </Button.Background>
+            </Button>
+            <!--  иконка от ahmad mustaqim  -->
+
+            <Button
+                Name="CloseBtn"
+                HorizontalAlignment="Right"
+                Click="CloseBtn_Click">
+                <Button.Background>
+                    <ImageBrush ImageSource="pack://application:,,,/img/Icons/Close.png" />
+                </Button.Background>
+
+                <Button.Triggers>
+                    <EventTrigger RoutedEvent="MouseEnter">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background">
+                                    <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                                        <DiscreteObjectKeyFrame.Value>
+                                            <ImageBrush ImageSource="pack://application:,,,/img/Icons/CloseFocused.png" />
+                                        </DiscreteObjectKeyFrame.Value>
+                                    </DiscreteObjectKeyFrame>
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+
+                    <EventTrigger RoutedEvent="MouseLeave">
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="Background">
+                                    <DiscreteObjectKeyFrame KeyTime="0:0:0">
+                                        <DiscreteObjectKeyFrame.Value>
+                                            <ImageBrush ImageSource="pack://application:,,,/img/Icons/Close.png" />
+                                        </DiscreteObjectKeyFrame.Value>
+                                    </DiscreteObjectKeyFrame>
+                                </ObjectAnimationUsingKeyFrames>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </EventTrigger>
+                </Button.Triggers>
+
+            </Button>
+            <!--  иконка от inkubators  -->
+        </Grid>
+
+    </Grid>
+</UserControl>

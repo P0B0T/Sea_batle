@@ -9,4 +9,26 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="img\Background\Background.jpg" />
+    <None Remove="img\Icons\Close.png" />
+    <None Remove="img\Icons\CloseFocused.png" />
+    <None Remove="img\Icons\Collapse.png" />
+    <None Remove="img\Icons\GameIcon.jpg" />
+    <None Remove="img\Icons\Maximize.png" />
+    <None Remove="img\Icons\Minimaze.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="img\Background\Background.jpg">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="img\Icons\Close.png" />
+    <Resource Include="img\Icons\CloseFocused.png" />
+    <Resource Include="img\Icons\Collapse.png" />
+    <Resource Include="img\Icons\GameIcon.jpg" />
+    <Resource Include="img\Icons\Maximize.png" />
+    <Resource Include="img\Icons\Minimaze.png" />
+  </ItemGroup>
+
 </Project>
