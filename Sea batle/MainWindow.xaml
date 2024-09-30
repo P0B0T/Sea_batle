@@ -6,12 +6,20 @@
     xmlns:local="clr-namespace:Sea_batle"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:uc="clr-namespace:Sea_batle.UserControls"
-    Title="Морской бой: Меню"
+    Title="Морской бой: "
+    Loaded="Window_Loaded"
     MouseDown="Window_MouseDown"
     ResizeMode="CanResizeWithGrip"
     WindowStartupLocation="CenterScreen"
     mc:Ignorable="d">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
         <uc:Header VerticalAlignment="Top" />
+
+        <Frame Name="OutputFrame" Grid.Row="1" />
     </Grid>
 </Window>

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Input;
+using Sea_batle.Pages;
 
 namespace Sea_batle
 {
@@ -17,6 +18,15 @@ namespace Sea_batle
         {
             if (e.ChangedButton == MouseButton.Left)
                 this.DragMove();
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            MenuPage menu = new MenuPage();
+
+            OutputFrame.Navigate(menu);
+
+            this.Title += menu.Title;
         }
     }
 }

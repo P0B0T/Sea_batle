@@ -34,14 +34,23 @@
             x:Key="BaseButton"
             BasedOn="{StaticResource MainElement}"
             TargetType="Button">
+            <Setter Property="Foreground" Value="DarkBlue" />
+            <Setter Property="BorderBrush" Value="DarkBlue" />
             <Setter Property="Height" Value="45" />
             <Setter Property="Width" Value="155" />
             <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid Background="{TemplateBinding Background}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" />
+                            <TextBlock
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                FontSize="{TemplateBinding FontSize}"
+                                Foreground="{TemplateBinding Foreground}"
+                                Text="{TemplateBinding Content}" />
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -71,6 +80,12 @@
             <Setter Property="Source" Value="pack://application:,,,/img/Icons/GameIcon.jpg" />
             <Setter Property="Width" Value="30" />
             <Setter Property="Height" Value="30" />
+        </Style>
+
+        <Style TargetType="GroupBox">
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="Height" Value="250" />
+            <Setter Property="Width" Value="500" />
         </Style>
 
     </Application.Resources>
