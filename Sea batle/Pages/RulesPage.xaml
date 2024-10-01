@@ -1,0 +1,122 @@
+﻿<Page
+    x:Class="Sea_batle.Pages.RulesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Sea_batle.Pages"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Title="Правила"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+
+    <Page.Resources>
+        <Style BasedOn="{StaticResource BaseTextBlock}" TargetType="TextBlock">
+            <Setter Property="Background" Value="#15384b" />
+            <Setter Property="FontWeight" Value="Normal" />
+            <Setter Property="Opacity" Value="0.7" />
+        </Style>
+
+        <Style x:Key="BorderText" TargetType="Border">
+            <Setter Property="BorderBrush" Value="#15384b" />
+            <Setter Property="BorderThickness" Value="3" />
+            <Setter Property="CornerRadius" Value="7" />
+        </Style>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="100" />
+        </Grid.RowDefinitions>
+
+        <GroupBox>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="160" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Label Content="Цель игры:" />
+                    <Border Grid.Column="1" Style="{StaticResource BorderText}">
+                        <TextBlock Text="Игрок должен уничтожить все корабли компьютера, стреляя по его игровому полю. Побеждает тот, кто первым потопит все корабли противника." />
+                    </Border>
+
+                    <TextBlock
+                        Grid.Row="1"
+                        FontWeight="Bold"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="Игровое поле:"
+                        TextAlignment="Center" />
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Style="{StaticResource BorderText}">
+                        <TextBlock Text="Каждое игровое поле представляет собой квадратную сетку 10x10 клеток. В каждой клетке может находиться часть корабля или вода. Игрок видит своё игровое поле и поле компьютера, на которое он делает выстрелы." />
+                    </Border>
+
+                    <TextBlock
+                        Grid.Row="2"
+                        FontWeight="Bold"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="Расстановка кораблей:"
+                        TextAlignment="Center" />
+                    <Border
+                        Grid.Row="2"
+                        Grid.Column="1"
+                        Style="{StaticResource BorderText}">
+                        <TextBlock Text="Перед началом игры игрок расставляет свои корабли на своём игровом поле. Можно выбрать автоматическую или ручную расстановку. Компьютер также расставляет свои корабли автоматически. Набор кораблей для каждого участника (игрока и компьютера): 1 корабль длиной 4 клетки (линкор), 2 корабля длиной 3 клетки (крейсеры), 3 корабля длиной 2 клетки (эсминцы), 4 корабля длиной 1 клетка (катера). Корабли располагаются горизонтально или вертикально. Корабли не могут касаться друг друга ни боками, ни углами (по диагонали)." />
+                    </Border>
+
+                    <Label Grid.Row="3" Content="Ход игры:" />
+                    <Border
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Style="{StaticResource BorderText}">
+                        <TextBlock Text="Игрок и компьютер ходят по очереди. Игрок выбирает клетку на поле компьютера, чтобы сделать выстрел. Компьютер стреляет автоматически, выбирая клетку на поле игрока. Если игрок попадает в клетку, где находится часть корабля компьютера, эта клетка помечается как 'ранение'. Если все клетки корабля поражены, корабль считается 'потопленным'. Если игрок или компьютер промахивается, ход переходит к другому участнику." />
+                    </Border>
+
+                    <Label Grid.Row="4" Content="Выстрелы:" />
+                    <Border
+                        Grid.Row="4"
+                        Grid.Column="1"
+                        Style="{StaticResource BorderText}">
+                        <TextBlock Text="Игрок делает выстрел, кликая на клетку поля компьютера. Компьютер выбирает клетку на поле игрока случайным образом, но может использовать стратегию (например, продолжать атаковать рядом с поражёнными клетками). После каждого выстрела клетка меняет цвет в зависимости от результата: 'Попадание' – клетка корабля противника. 'Промах' – пустая клетка (вода). Компьютер и игрок получают уведомления о результате своих выстрелов." />
+                    </Border>
+
+                    <TextBlock
+                        Grid.Row="5"
+                        FontWeight="Bold"
+                        Style="{StaticResource BaseTextBlock}"
+                        Text="Конец игры:"
+                        TextAlignment="Center" />
+                    <Border
+                        Grid.Row="5"
+                        Grid.Column="1"
+                        Style="{StaticResource BorderText}">
+                        <TextBlock Text="Игра продолжается до тех пор, пока один из участников не потопит все корабли противника. Побеждает тот, кто первым уничтожит все корабли оппонента (игрок или компьютер)." />
+                    </Border>
+                </Grid>
+            </ScrollViewer>
+        </GroupBox>
+
+        <Button
+            Name="BackBtn"
+            Grid.Row="1"
+            Margin="0,0,0,30"
+            HorizontalAlignment="Center"
+            Click="BackBtn_Click"
+            Content="Назад"
+            Style="{StaticResource BaseButton}" />
+    </Grid>
+</Page>

@@ -20,6 +20,9 @@
 
         <uc:Header VerticalAlignment="Top" />
 
-        <Frame Name="OutputFrame" Grid.Row="1" />
+        <Frame
+            Name="OutputFrame"
+            Grid.Row="1"
+            NavigationUIVisibility="Hidden" />
     </Grid>
 </Window>

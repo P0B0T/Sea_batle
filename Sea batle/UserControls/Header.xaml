@@ -37,24 +37,26 @@
             Width="165"
             Margin="35,0,0,0"
             HorizontalAlignment="Left"
-            VerticalAlignment="Center" />
+            VerticalAlignment="Center"
+            FontSize="16"
+            Style="{StaticResource BaseTextBlock}" />
 
         <Grid
             Width="110"
             Margin="0,5,5,0"
             HorizontalAlignment="Right">
 
-            <Button Name="CollapseBtn" Click="CollapseBtn_Click">
+            <Button
+                Name="CollapseBtn"
+                HorizontalAlignment="Left"
+                Click="CollapseBtn_Click">
                 <Button.Background>
                     <ImageBrush ImageSource="pack://application:,,,/img/Icons/Collapse.png" />
                 </Button.Background>
             </Button>
             <!--  иконка от Circlon Tech  -->
 
-            <Button
-                Name="MaximizeBtn"
-                HorizontalAlignment="Center"
-                Click="MaximizeBtn_Click">
+            <Button Name="MaximizeBtn" Click="MaximizeBtn_Click">
                 <Button.Background>
                     <ImageBrush ImageSource="pack://application:,,,/img/Icons/Maximize.png" />
                 </Button.Background>

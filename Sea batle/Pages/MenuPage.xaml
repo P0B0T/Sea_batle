@@ -12,15 +12,17 @@
 
     <Page.Resources>
         <Style BasedOn="{StaticResource BaseButton}" TargetType="Button">
+            <Setter Property="FontSize" Value="50" />
             <Setter Property="Height" Value="80" />
             <Setter Property="Width" Value="400" />
-            <Setter Property="BorderThickness" Value="5" />
-            <Setter Property="FontSize" Value="50" />
-            <Setter Property="HorizontalAlignment" Value="Center" />
         </Style>
     </Page.Resources>
 
-    <GroupBox HorizontalAlignment="Center" VerticalAlignment="Center">
+    <GroupBox
+        Width="500"
+        Height="250"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center">
         <Grid>
             <Button
                 Name="StartBtn"
@@ -31,6 +33,7 @@
             <Button
                 Name="RulesBtn"
                 VerticalAlignment="Bottom"
+                Click="RulesBtn_Click"
                 Content="Правила" />
         </Grid>
     </GroupBox>

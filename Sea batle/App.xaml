@@ -36,10 +36,12 @@
             TargetType="Button">
             <Setter Property="Foreground" Value="DarkBlue" />
             <Setter Property="BorderBrush" Value="DarkBlue" />
-            <Setter Property="Height" Value="45" />
-            <Setter Property="Width" Value="155" />
-            <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+            <Setter Property="Height" Value="70" />
+            <Setter Property="Width" Value="200" />
+            <Setter Property="BorderThickness" Value="5" />
+            <Setter Property="FontSize" Value="40" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -62,6 +64,8 @@
                             <ScaleTransform ScaleX="1.1" ScaleY="1.1" />
                         </Setter.Value>
                     </Setter>
+                    <Setter Property="Foreground" Value="Blue" />
+                    <Setter Property="BorderBrush" Value="Blue" />
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -70,9 +74,13 @@
             <Setter Property="CornerRadius" Value="7" />
         </Style>
 
-        <Style BasedOn="{StaticResource MainElement}" TargetType="TextBlock">
+        <Style
+            x:Key="BaseTextBlock"
+            BasedOn="{StaticResource MainElement}"
+            TargetType="TextBlock">
             <Setter Property="TextAlignment" Value="Left" />
             <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="FontSize" Value="25" />
         </Style>
 
         <Style TargetType="Image">
@@ -84,8 +92,12 @@
 
         <Style TargetType="GroupBox">
             <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Height" Value="250" />
-            <Setter Property="Width" Value="500" />
+        </Style>
+
+        <Style BasedOn="{StaticResource MainElement}" TargetType="Label">
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="FontSize" Value="25" />
         </Style>
 
     </Application.Resources>
