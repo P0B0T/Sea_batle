@@ -42,6 +42,7 @@
             <Setter Property="BorderThickness" Value="5" />
             <Setter Property="FontSize" Value="40" />
             <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="Opacity" Value="0.7" />
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">

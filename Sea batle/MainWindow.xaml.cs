@@ -1,7 +1,7 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using Sea_batle.Pages;
+using Sea_batle.UserControls;
+using System.Windows;
 using System.Windows.Input;
-using Sea_batle.Pages;
 
 namespace Sea_batle
 {
@@ -23,11 +23,7 @@ namespace Sea_batle
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            MenuPage menu = new MenuPage();
-
-            OutputFrame.Navigate(menu);
-
-            this.Title += menu.Title;
+            OutputFrame.Navigate(new MenuPage());
         }
     }
 }

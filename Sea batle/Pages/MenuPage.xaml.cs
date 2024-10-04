@@ -24,5 +24,10 @@ namespace Sea_batle.Pages
         {
             mainWindow.OutputFrame.Navigate(new RulesPage());
         }
+
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            mainWindow.TopPanel.UpdateTitle(this.Title);
+        }
     }
 }

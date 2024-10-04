@@ -7,7 +7,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="30"
     d:DesignWidth="800"
-    Loaded="Header_Loaded"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -16,6 +15,7 @@
             <Setter Property="Height" Value="30" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="RenderTransformOrigin" Value="0, 0" />
+            <Setter Property="Opacity" Value="1" />
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="RenderTransform">
@@ -34,7 +34,7 @@
 
         <TextBlock
             Name="TitleTblock"
-            Width="165"
+            Width="200"
             Margin="35,0,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"
