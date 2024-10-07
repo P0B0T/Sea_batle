@@ -34,7 +34,7 @@
 
         <TextBlock
             Name="TitleTblock"
-            Width="200"
+            Width="500"
             Margin="35,0,0,0"
             HorizontalAlignment="Left"
             VerticalAlignment="Center"

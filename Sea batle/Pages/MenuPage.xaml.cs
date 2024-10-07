@@ -17,7 +17,7 @@ namespace Sea_batle.Pages
 
         private void StartBtn_Click(object sender, RoutedEventArgs e)
         {
-            
+            mainWindow.OutputFrame.Navigate(new PlacementPage());
         }
 
         private void RulesBtn_Click(object sender, RoutedEventArgs e)
