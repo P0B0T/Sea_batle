@@ -16,8 +16,12 @@ namespace Sea_batle
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left)
-                this.DragMove();
+            try
+            {
+                if (e.ChangedButton == MouseButton.Left)
+                    this.DragMove();
+            }
+            catch { }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

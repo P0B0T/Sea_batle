@@ -12,7 +12,8 @@ namespace Sea_batle.Assistans
                 Source = new BitmapImage(new Uri(path, UriKind.Absolute)),
                 Stretch = System.Windows.Media.Stretch.Fill,
                 Width = cellSize,
-                Height = cellSize
+                Height = cellSize,
+                IsHitTestVisible = false
             };
         }
     }

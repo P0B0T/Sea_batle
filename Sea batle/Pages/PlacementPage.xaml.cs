@@ -1,6 +1,5 @@
 ﻿using Sea_batle.Game.Map;
 using Sea_batle.Game.Ship;
-using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -30,18 +29,21 @@ namespace Sea_batle.Pages
             return Math.Min(FieldCanv.ActualWidth / map.GetMapSize(), FieldCanv.ActualHeight / map.GetMapSize());
         }
 
-        private void FieldCanv_SizeChanged(object sender, SizeChangedEventArgs e)
+        private void CreateShips()
         {
-            
-
-            map.DrawMap(FieldCanv, GetCellSize());
-
-            Ships.Children.Clear();
-
             ShipView.AddShip(Ships, 4, 1, GetCellSize());
             ShipView.AddShip(Ships, 3, 2, GetCellSize());
             ShipView.AddShip(Ships, 2, 3, GetCellSize());
             ShipView.AddShip(Ships, 1, 4, GetCellSize());
+        }
+
+        private void FieldCanv_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            map.DrawMap(FieldCanv, GetCellSize());
+
+            Ships.Children.Clear();
+
+            CreateShips();
         }
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)
