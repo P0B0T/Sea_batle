@@ -14,6 +14,12 @@ namespace Sea_batle.Pages
 
         Map map = new Map();
 
+        List<Ship> fleet = new List<Ship>();
+
+        const int cruiserCount = 2;
+        const int destroyerCount = 3;
+        const int speedboatCount = 4;
+
         public PlacementPage()
         {
             InitializeComponent();
@@ -29,12 +35,22 @@ namespace Sea_batle.Pages
             return Math.Min(FieldCanv.ActualWidth / map.GetMapSize(), FieldCanv.ActualHeight / map.GetMapSize());
         }
 
-        private void CreateShips()
+        private Dictionary<char, int> CalcCoordXY(Point position)
         {
-            ShipView.AddShip(Ships, 4, 1, GetCellSize());
-            ShipView.AddShip(Ships, 3, 2, GetCellSize());
-            ShipView.AddShip(Ships, 2, 3, GetCellSize());
-            ShipView.AddShip(Ships, 1, 4, GetCellSize());
+            return new Dictionary<char, int>()
+            {
+                { 'X', (int)Math.Floor(position.X / GetCellSize())},
+                { 'Y', (int)Math.Floor(position.Y / GetCellSize())}
+            };
+        }
+
+        private Dictionary<char, double> CalcCoordTopLeft(Point position)
+        {
+            return new Dictionary<char, double>()
+            {
+                { 'L', CalcCoordXY(position)['X'] * GetCellSize() - 30},
+                { 'T', CalcCoordXY(position)['Y'] * GetCellSize()}
+            };
         }
 
         private void FieldCanv_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -43,7 +59,9 @@ namespace Sea_batle.Pages
 
             Ships.Children.Clear();
 
-            CreateShips();
+            CreateFleet();
+
+            AddFleet();
         }
 
         private void BackBtn_Click(object sender, RoutedEventArgs e)
@@ -51,10 +69,24 @@ namespace Sea_batle.Pages
             NavigationService.GoBack();
         }
 
-        private void FieldCanv_DragOver(object sender, DragEventArgs e)
+        private void CreateFleet()
         {
-            e.Effects = DragDropEffects.Move;
-            e.Handled = true;
+            fleet.Add(new Ship(Ships, GetCellSize(), 4, Orientation.Horizontal));
+
+            for (int i = 0; i < cruiserCount; i++)
+                fleet.Add(new Ship(Ships, GetCellSize(), 3, Orientation.Horizontal));
+
+            for (int i = 0; i < destroyerCount; i++)
+                fleet.Add(new Ship(Ships, GetCellSize(), 2, Orientation.Horizontal));
+
+            for (int i = 0; i < speedboatCount; i++)
+                fleet.Add(new Ship(Ships, GetCellSize(), 1, Orientation.Horizontal));
+        }
+
+        private void AddFleet()
+        {
+            foreach (var ship in fleet)
+                ship.OutputShip();
         }
 
         private void FieldCanv_Drop(object sender, DragEventArgs e)
@@ -62,19 +94,47 @@ namespace Sea_batle.Pages
             if (e.Data.GetDataPresent(DataFormats.Serializable))
             {
                 StackPanel droppedShip = e.Data.GetData(DataFormats.Serializable) as StackPanel;
-                Panel oldParent = droppedShip.Parent as Panel;
 
-                oldParent.Children.Remove(droppedShip);
+                Ship droppedShipObj = fleet.FirstOrDefault(s => !s.IsPlaced);
 
-                var position = e.GetPosition(FieldCanv);
+                if (droppedShip != null && droppedShipObj != null)
+                {
+                    Panel oldParent = droppedShip.Parent as Panel;
 
-                double left = Math.Round(position.X / GetCellSize()) * GetCellSize();
-                double top = Math.Round(position.Y / GetCellSize()) * GetCellSize();
+                    if (oldParent != null)
+                        oldParent.Children.Remove(droppedShip);
 
-                Canvas.SetLeft(droppedShip, left);
-                Canvas.SetTop(droppedShip, top);
+                    var position = e.GetPosition(FieldCanv);
 
-                FieldCanv.Children.Add(droppedShip);
+                    int x = CalcCoordXY(position)['X'];
+                    int y = CalcCoordXY(position)['Y'];
+
+                    int shipLength = droppedShip.Children.Count;
+
+                    if (droppedShip.Orientation == Orientation.Horizontal
+                        ? x + shipLength <= map.GetMapSize() && y >= 0 && y < map.GetMapSize()
+                        : y + shipLength <= map.GetMapSize() && x >= 0 && x < map.GetMapSize())
+                    {
+                        droppedShipObj.UpdateCoordinates(x, y);
+
+                        Canvas.SetLeft(droppedShip, CalcCoordTopLeft(position)['L']);
+                        Canvas.SetTop(droppedShip, CalcCoordTopLeft(position)['T']);
+
+                        FieldCanv.Children.Add(droppedShip);
+
+                        for (int i = 0; i < shipLength; i++)
+                            if (droppedShip.Orientation == Orientation.Horizontal)
+                                map.Cells[y, x + i].HasShip = true;
+                            else
+                                map.Cells[y + i, x].HasShip = true;
+
+                        droppedShipObj.IsPlaced = true;
+
+                        //map.DrawMap(FieldCanv, GetCellSize());
+                    }
+                    else
+                        oldParent.Children.Add(droppedShip);
+                }
             }
         }
     }

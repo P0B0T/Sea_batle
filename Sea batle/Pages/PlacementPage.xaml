@@ -28,7 +28,6 @@
             Name="FieldCanv"
             Margin="30,0,0,0"
             AllowDrop="True"
-            DragOver="FieldCanv_DragOver"
             Drop="FieldCanv_Drop"
             SizeChanged="FieldCanv_SizeChanged" />
 

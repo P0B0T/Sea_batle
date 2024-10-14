@@ -6,7 +6,7 @@ namespace Sea_batle.Game.Map
 {
     public class Map
     {
-        private Cell[,] Cells { get; set; }
+        public Cell[,] Cells { get; private set; }
         private const int mapSize = 10;
 
         public Map()
@@ -29,7 +29,9 @@ namespace Sea_batle.Game.Map
                     {
                         Width = cellSize,
                         Height = cellSize,
-                        Stroke = Brushes.White
+                        Stroke = Brushes.White,
+                        //Fill = Brushes.Transparent
+                        Fill = Cells[row, col].HasShip ? Brushes.Gray : Brushes.Transparent
                     };
 
                     Canvas.SetLeft(rect, col * cellSize);
