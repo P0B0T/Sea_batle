@@ -9,78 +9,89 @@ namespace Sea_batle.Game.Ship
     public class Ship
     {
         private readonly StackPanel _port;
-        private readonly double _cellSize;
+        private double _cellSize;
         private readonly Orientation _orientation;
-
-        private int _X;
-        private int _Y;
 
         public int? X { get; private set; }
         public int? Y { get; private set; }
         public bool IsPlaced { get; set; } = false;
-        public int Lenght { get; private set; }
+        public int Length { get; private set; }
+
+        public StackPanel ShipVisual { get; private set; }
 
         public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, int? x = null, int? y = null)
         {
             _port = port;
             _cellSize = cellSize;
-            Lenght = shipLength;
+            Length = shipLength;
             _orientation = orientation;
-
             X = x;
             Y = y;
+
+            ShipVisual = CreateShip();
         }
 
         private StackPanel CreateShip()
         {
-            StackPanel ship = new StackPanel()
+            var shipVisual = new StackPanel
             {
                 Orientation = Orientation.Horizontal,
                 Margin = new Thickness(30, 0, 0, 0),
                 Background = Brushes.Transparent,
-                Width = _cellSize * Lenght,
+                Width = _cellSize * Length,
                 Height = _cellSize
             };
 
-            ship.PreviewMouseDown += Ship_PreviewMouseDown;
-            ship.MouseRightButtonDown += Ship_MouseRightButtonDown;
-            ship.AllowDrop = true;
+            shipVisual.PreviewMouseDown += Ship_PreviewMouseDown;
+            shipVisual.MouseRightButtonDown += Ship_MouseRightButtonDown;
+            shipVisual.AllowDrop = true;
 
-            ship.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Nose.png", _cellSize));
+            shipVisual.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Nose.png", _cellSize));
 
-            for (int i = 0; i < Lenght - 2; i++)
-                ship.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Deck.png", _cellSize));
+            for (int i = 0; i < Length - 2; i++)
+                shipVisual.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Deck.png", _cellSize));
 
-            if (Lenght > 1)
-                ship.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Stern.png", _cellSize));
+            if (Length > 1)
+                shipVisual.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Stern.png", _cellSize));
 
-            return ship;
+            return shipVisual;
         }
 
         public void OutputShip()
         {
-            int rowIndex = Lenght switch
+            int rowIndex = Length switch
             {
                 4 => 0,
                 3 => 1,
                 2 => 2,
-                1 => 3
+                1 => 3,
+                _ => -1
             };
 
             if (rowIndex >= 0)
             {
-                if (_port.Children.Count <= rowIndex || !(_port.Children[rowIndex] is StackPanel row))
+                StackPanel row;
+
+                if (_port.Children.Count <= rowIndex || !(_port.Children[rowIndex] is StackPanel existingRow))
                 {
                     row = new StackPanel
                     {
                         Orientation = Orientation.Horizontal,
                         Margin = new Thickness(0, 30, 0, 0)
                     };
-                    _port.Children.Insert(rowIndex, row);
-                }
 
-                StackPanel ship = CreateShip();
-                ((StackPanel)_port.Children[rowIndex]).Children.Add(ship);
+                    if (_port.Children.Count > rowIndex)
+                        _port.Children.Insert(rowIndex, row);
+                    else
+                        _port.Children.Add(row); 
+                }
+                else
+                    row = existingRow;
+
+                if (ShipVisual.Parent is Panel oldParent)
+                    oldParent.Children.Remove(ShipVisual);
+
+                row.Children.Add(ShipVisual);
             }
         }
 
@@ -91,26 +102,27 @@ namespace Sea_batle.Game.Ship
 
         private void Ship_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            RotateShip(sender);
+            RotateShip();
         }
 
-        private void RotateShip(object sender)
+        private void RotateShip()
         {
-            StackPanel ship = sender as StackPanel;
+            ShipVisual.Orientation = ShipVisual.Orientation == Orientation.Horizontal
+                                     ? Orientation.Vertical
+                                     : Orientation.Horizontal;
 
-            (ship.Width, ship.Height) = (ship.Height, ship.Width);
+            (ShipVisual.Width, ShipVisual.Height) = (ShipVisual.Height, ShipVisual.Width);
 
-            if (ship.Orientation == Orientation.Horizontal)
-                ship.Orientation = Orientation.Vertical;
-            else
-                ship.Orientation = Orientation.Horizontal;
-
-            foreach (UIElement element in ship.Children)
+            foreach (UIElement element in ShipVisual.Children)
             {
-                Image part = element as Image;
+                if (element is Image part)
+                {
+                    part.RenderTransformOrigin = new Point(0.5, 0.5);
 
-                part.RenderTransformOrigin = new Point(0.5, 0.5);
-                part.RenderTransform = ship.Orientation == Orientation.Vertical ? new RotateTransform(90) : new RotateTransform(0);
+                    part.RenderTransform = ShipVisual.Orientation == Orientation.Vertical
+                        ? new RotateTransform(90)
+                        : new RotateTransform(0);
+                }
             }
         }
 
@@ -119,6 +131,21 @@ namespace Sea_batle.Game.Ship
             X = x;
             Y = y;
             IsPlaced = true;
+        }
+
+        public void UpdateSize(double cellSize)
+        {
+            _cellSize = cellSize;
+
+            ShipVisual.Width = ShipVisual.Orientation == Orientation.Horizontal ? _cellSize * Length : _cellSize;
+            ShipVisual.Height = ShipVisual.Orientation == Orientation.Vertical ? _cellSize * Length : _cellSize;
+
+            foreach (UIElement element in ShipVisual.Children)
+                if (element is Image part)
+                {
+                    part.Width = _cellSize;
+                    part.Height = _cellSize;
+                }
         }
     }
 }

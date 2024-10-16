@@ -7,6 +7,7 @@ namespace Sea_batle.Game.Map
     public class Map
     {
         public Cell[,] Cells { get; private set; }
+
         private const int mapSize = 10;
 
         public Map()
@@ -41,9 +42,6 @@ namespace Sea_batle.Game.Map
                 }
         }
 
-        public int GetMapSize()
-        {
-            return mapSize;
-        }
+        public int GetMapSize() => mapSize;
     }
 }
