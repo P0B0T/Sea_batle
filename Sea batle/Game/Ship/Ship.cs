@@ -3,15 +3,17 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using static Sea_batle.Pages.PlacementPage;
 
 namespace Sea_batle.Game.Ship
 {
     public class Ship
     {
         private readonly StackPanel _port;
-        private double _cellSize;
-        private readonly Orientation _orientation;
         private readonly Map.Map _map;
+
+        private double _cellSize;
+        private Orientation _orientation;
 
         public int? X { get; private set; }
         public int? Y { get; private set; }
@@ -20,7 +22,9 @@ namespace Sea_batle.Game.Ship
 
         public StackPanel ShipVisual { get; private set; }
 
-        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, Map.Map map, int? x = null, int? y = null)
+        private readonly FindShip _findShip; // Храним делегат
+
+        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, Map.Map map, FindShip findShip, int? x = null, int? y = null)
         {
             _port = port;
             _cellSize = cellSize;
@@ -30,6 +34,8 @@ namespace Sea_batle.Game.Ship
 
             X = x;
             Y = y;
+
+            _findShip = findShip;
 
             ShipVisual = CreateShip();
         }
@@ -46,7 +52,6 @@ namespace Sea_batle.Game.Ship
             };
 
             shipVisual.PreviewMouseDown += Ship_PreviewMouseDown;
-            shipVisual.MouseRightButtonDown += Ship_MouseRightButtonDown;
             shipVisual.AllowDrop = true;
 
             shipVisual.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Nose.png", _cellSize));
@@ -98,14 +103,23 @@ namespace Sea_batle.Game.Ship
             }
         }
 
-        private static void Ship_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private void Ship_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            DragDrop.DoDragDrop(sender as StackPanel, new DataObject(DataFormats.Serializable, sender as StackPanel), DragDropEffects.Move);
-        }
+            StackPanel shipVisual = sender as StackPanel;
 
-        private void Ship_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            RotateShip();
+            if (e.RightButton == MouseButtonState.Pressed)
+            {
+                Ship ship = _findShip(shipVisual);
+
+                if (ship != null)
+                {
+                    ship.RotateShip();
+
+                    e.Handled = true;
+                }
+            }
+            else if (e.LeftButton == MouseButtonState.Pressed)
+                DragDrop.DoDragDrop(shipVisual, new DataObject(DataFormats.Serializable, shipVisual), DragDropEffects.Move);
         }
 
         private void RotateShip()
@@ -113,6 +127,8 @@ namespace Sea_batle.Game.Ship
             ShipVisual.Orientation = ShipVisual.Orientation == Orientation.Horizontal
                                      ? Orientation.Vertical
                                      : Orientation.Horizontal;
+
+            _orientation = ShipVisual.Orientation;
 
             (ShipVisual.Width, ShipVisual.Height) = (ShipVisual.Height, ShipVisual.Width);
 

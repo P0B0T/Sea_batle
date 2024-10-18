@@ -18,6 +18,8 @@ namespace Sea_batle.Pages
         private const int DestroyerCount = 3;
         private const int SpeedboatCount = 4;
 
+        public delegate Ship FindShip(StackPanel shipVisual);
+
         public PlacementPage()
         {
             InitializeComponent();
@@ -53,7 +55,7 @@ namespace Sea_batle.Pages
 
         private void RedrawFieldAndShips()
         {
-            _map.DrawMap(FieldCanv, GetCellSize());
+            _map.DrawMap(FieldCanv, GetCellSize()); // убрать потом
 
             Ships.Children.Clear();
 
@@ -77,17 +79,17 @@ namespace Sea_batle.Pages
             {
                 double cellSize = GetCellSize();
 
-                double left = ship.X.Value * cellSize;
+                double left = ship.X.Value * cellSize - 30;
                 double top = ship.Y.Value * cellSize;
 
                 if (ship.ShipVisual.Orientation == Orientation.Horizontal)
                 {
-                    Canvas.SetLeft(ship.ShipVisual, left - 30);
+                    Canvas.SetLeft(ship.ShipVisual, left);
                     Canvas.SetTop(ship.ShipVisual, top);
                 }
                 else
                 {
-                    Canvas.SetLeft(ship.ShipVisual, left - 30);
+                    Canvas.SetLeft(ship.ShipVisual, left);
                     Canvas.SetTop(ship.ShipVisual, top);
                 }
 
@@ -96,9 +98,14 @@ namespace Sea_batle.Pages
             }
         }
 
+        private Ship FindShipByVisual(StackPanel shipVisual)
+        {
+            return _fleet.FirstOrDefault(ship => ship.ShipVisual == shipVisual);
+        }
+
         private void CreateFleet()
         {
-            _fleet.Add(new Ship(Ships, GetCellSize(), 4, Orientation.Horizontal, _map));
+            _fleet.Add(new Ship(Ships, GetCellSize(), 4, Orientation.Horizontal, _map, new FindShip(FindShipByVisual)));
 
             AddShipsToFleet(CruiserCount, 3);
             AddShipsToFleet(DestroyerCount, 2);
@@ -110,7 +117,7 @@ namespace Sea_batle.Pages
         private void AddShipsToFleet(int count, int shipLength)
         {
             for (int i = 0; i < count; i++)
-                _fleet.Add(new Ship(Ships, GetCellSize(), shipLength, Orientation.Horizontal, _map));
+                _fleet.Add(new Ship(Ships, GetCellSize(), shipLength, Orientation.Horizontal, _map, new FindShip(FindShipByVisual)));
         }
 
         private void AddFleetToUI()
