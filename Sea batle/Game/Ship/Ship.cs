@@ -11,6 +11,7 @@ namespace Sea_batle.Game.Ship
         private readonly StackPanel _port;
         private double _cellSize;
         private readonly Orientation _orientation;
+        private readonly Map.Map _map;
 
         public int? X { get; private set; }
         public int? Y { get; private set; }
@@ -19,12 +20,14 @@ namespace Sea_batle.Game.Ship
 
         public StackPanel ShipVisual { get; private set; }
 
-        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, int? x = null, int? y = null)
+        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, Map.Map map, int? x = null, int? y = null)
         {
             _port = port;
             _cellSize = cellSize;
             Length = shipLength;
             _orientation = orientation;
+            _map = map;
+
             X = x;
             Y = y;
 
@@ -146,6 +149,39 @@ namespace Sea_batle.Game.Ship
                     part.Width = _cellSize;
                     part.Height = _cellSize;
                 }
+        }
+
+        public void ClearShipFromMap()
+        {
+            if (X.HasValue && Y.HasValue)
+            {
+                int x = X.Value;
+                int y = Y.Value;
+
+                int shipLength = Length;
+                bool isHorizontal = _orientation == Orientation.Horizontal;
+
+                for (int i = 0; i < shipLength; i++)
+                {
+                    if (isHorizontal)
+                        _map.Cells[y, x + i].HasShip = false;
+                    else
+                        _map.Cells[y + i, x].HasShip = false;
+                }
+
+                IsPlaced = false;
+            }
+        }
+
+        public bool IsValidDropPosition(int x, int y)
+        {
+            bool isHorizontal = _orientation == Orientation.Horizontal;
+
+            int mapSize = _map.GetMapSize();
+
+            return isHorizontal
+                ? x >= 0 && y >= 0 && y < mapSize && x + Length <= mapSize
+                : x >= 0 && x < mapSize && y >= 0 && y + Length <= mapSize;
         }
     }
 }

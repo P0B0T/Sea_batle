@@ -10,9 +10,9 @@ namespace Sea_batle.Pages
     /// </summary>
     public partial class PlacementPage : Page
     {
-        private readonly MainWindow _mainWindow;
-        private readonly Map _map;
-        private readonly List<Ship> _fleet;
+        private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
+        private readonly Map _map = new Map();
+        private readonly List<Ship> _fleet = new List<Ship>();
 
         private const int CruiserCount = 2;
         private const int DestroyerCount = 3;
@@ -21,9 +21,6 @@ namespace Sea_batle.Pages
         public PlacementPage()
         {
             InitializeComponent();
-            _mainWindow = (MainWindow)Application.Current.MainWindow;
-            _map = new Map();
-            _fleet = new List<Ship>();
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
@@ -101,7 +98,7 @@ namespace Sea_batle.Pages
 
         private void CreateFleet()
         {
-            _fleet.Add(new Ship(Ships, GetCellSize(), 4, Orientation.Horizontal));
+            _fleet.Add(new Ship(Ships, GetCellSize(), 4, Orientation.Horizontal, _map));
 
             AddShipsToFleet(CruiserCount, 3);
             AddShipsToFleet(DestroyerCount, 2);
@@ -113,7 +110,7 @@ namespace Sea_batle.Pages
         private void AddShipsToFleet(int count, int shipLength)
         {
             for (int i = 0; i < count; i++)
-                _fleet.Add(new Ship(Ships, GetCellSize(), shipLength, Orientation.Horizontal));
+                _fleet.Add(new Ship(Ships, GetCellSize(), shipLength, Orientation.Horizontal, _map));
         }
 
         private void AddFleetToUI()
@@ -141,7 +138,7 @@ namespace Sea_batle.Pages
         private void HandleShipDrop(StackPanel droppedShip, Ship droppedShipObj, DragEventArgs e)
         {
             if (droppedShipObj.IsPlaced)
-                ClearShipFromMap(droppedShipObj);
+                droppedShipObj.ClearShipFromMap();
 
             Panel oldParent = droppedShip.Parent as Panel;
 
@@ -153,7 +150,7 @@ namespace Sea_batle.Pages
 
             int shipLength = droppedShip.Children.Count;
 
-            if (IsValidDropPosition(droppedShip, x, y, shipLength))
+            if (droppedShipObj.IsValidDropPosition(x, y))
             {
                 droppedShipObj.UpdateCoordinates(x, y);
 
@@ -163,17 +160,6 @@ namespace Sea_batle.Pages
             }
             else
                 oldParent?.Children.Add(droppedShip);
-        }
-
-        private bool IsValidDropPosition(StackPanel droppedShip, int x, int y, int shipLength)
-        {
-            bool isHorizontal = droppedShip.Orientation == Orientation.Horizontal;
-
-            int mapSize = _map.GetMapSize();
-
-            return isHorizontal
-                ? x + shipLength <= mapSize && y >= 0 && y < mapSize
-                : y + shipLength <= mapSize && x >= 0 && x < mapSize;
         }
 
         private void PositionShipOnField(StackPanel droppedShip, Point position, int x, int y, int shipLength)
@@ -190,24 +176,6 @@ namespace Sea_batle.Pages
                     _map.Cells[y, x + i].HasShip = true;
                 else
                     _map.Cells[y + i, x].HasShip = true;
-        }
-
-        private void ClearShipFromMap(Ship ship)
-        {
-            int x = ship.X.Value;
-            int y = ship.Y.Value;
-
-            int shipLength = ship.Length;
-
-            bool isHorizontal = ship.ShipVisual.Orientation == Orientation.Horizontal;
-
-            for (int i = 0; i < shipLength; i++)
-                if (isHorizontal)
-                    _map.Cells[y, x + i].HasShip = false;
-                else
-                    _map.Cells[y + i, x].HasShip = false;
-
-            ship.IsPlaced = false;
         }
     }
 }
