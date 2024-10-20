@@ -10,19 +10,10 @@ namespace Sea_batle.Pages
     {
         MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
 
-        public RulesPage()
-        {
-            InitializeComponent();
-        }
+        public RulesPage() => InitializeComponent();
 
-        private void BackBtn_Click(object sender, RoutedEventArgs e)
-        {
-            NavigationService.GoBack();
-        }
+        private void BackBtn_Click(object sender, RoutedEventArgs e) => NavigationService.GoBack();
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            mainWindow.TopPanel.UpdateTitle(this.Title);
-        }
+        private void Page_Loaded(object sender, RoutedEventArgs e) => mainWindow.TopPanel.UpdateTitle(this.Title);
     }
 }

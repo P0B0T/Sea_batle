@@ -10,24 +10,12 @@ namespace Sea_batle.Pages
     {
         MainWindow mainWindow = (MainWindow)Application.Current.MainWindow;
 
-        public MenuPage()
-        {
-            InitializeComponent();
-        }
+        public MenuPage() => InitializeComponent();
 
-        private void StartBtn_Click(object sender, RoutedEventArgs e)
-        {
-            mainWindow.OutputFrame.Navigate(new PlacementPage());
-        }
+        private void StartBtn_Click(object sender, RoutedEventArgs e) => mainWindow.OutputFrame.Navigate(new PlacementPage());
 
-        private void RulesBtn_Click(object sender, RoutedEventArgs e)
-        {
-            mainWindow.OutputFrame.Navigate(new RulesPage());
-        }
+        private void RulesBtn_Click(object sender, RoutedEventArgs e) => mainWindow.OutputFrame.Navigate(new RulesPage());
 
-        private void Page_Loaded(object sender, RoutedEventArgs e)
-        {
-            mainWindow.TopPanel.UpdateTitle(this.Title);
-        }
+        private void Page_Loaded(object sender, RoutedEventArgs e) => mainWindow.TopPanel.UpdateTitle(this.Title);
     }
 }

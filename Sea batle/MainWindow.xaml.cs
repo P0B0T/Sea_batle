@@ -9,10 +9,7 @@ namespace Sea_batle
     /// </summary>
     public partial class MainWindow : Window
     {
-        public MainWindow()
-        {
-            InitializeComponent();
-        }
+        public MainWindow() => InitializeComponent();
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -24,9 +21,6 @@ namespace Sea_batle
             catch { }
         }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
-        {
-            OutputFrame.Navigate(new MenuPage());
-        }
+        private void Window_Loaded(object sender, RoutedEventArgs e) => OutputFrame.Navigate(new MenuPage());
     }
 }

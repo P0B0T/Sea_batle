@@ -11,6 +11,7 @@ namespace Sea_batle.Game.Ship
     {
         private readonly StackPanel _port;
         private readonly Map.Map _map;
+        private readonly Canvas _fieldCanvas;
 
         private double _cellSize;
         private Orientation _orientation;
@@ -22,20 +23,23 @@ namespace Sea_batle.Game.Ship
 
         public StackPanel ShipVisual { get; private set; }
 
-        private readonly FindShip _findShip; // Храним делегат
+        private readonly FindShip _findShip;
+        private readonly Action _redrawMap;
 
-        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, Map.Map map, FindShip findShip, int? x = null, int? y = null)
+        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, Map.Map map, FindShip findShip, Canvas fieldCanvas, Action redrawMap, int? x = null, int? y = null)
         {
             _port = port;
             _cellSize = cellSize;
             Length = shipLength;
             _orientation = orientation;
             _map = map;
+            _fieldCanvas = fieldCanvas;
 
             X = x;
             Y = y;
 
             _findShip = findShip;
+            _redrawMap = redrawMap;
 
             ShipVisual = CreateShip();
         }
@@ -76,32 +80,28 @@ namespace Sea_batle.Game.Ship
                 _ => -1
             };
 
-            if (rowIndex >= 0)
-            {
-                StackPanel row;
+            if (rowIndex < 0) return;
 
-                if (_port.Children.Count <= rowIndex || !(_port.Children[rowIndex] is StackPanel existingRow))
+            StackPanel row = _port.Children.Count > rowIndex && _port.Children[rowIndex] is StackPanel existingRow
+                ? existingRow
+                : new StackPanel
                 {
-                    row = new StackPanel
-                    {
-                        Orientation = Orientation.Horizontal,
-                        Margin = new Thickness(0, 30, 0, 0)
-                    };
+                    Orientation = Orientation.Horizontal,
+                    Margin = new Thickness(0, 30, 0, 0)
+                };
 
-                    if (_port.Children.Count > rowIndex)
-                        _port.Children.Insert(rowIndex, row);
-                    else
-                        _port.Children.Add(row); 
-                }
+            if (_port.Children.Count <= rowIndex || _port.Children[rowIndex] != row)
+                if (_port.Children.Count > rowIndex)
+                    _port.Children.Insert(rowIndex, row);
                 else
-                    row = existingRow;
+                    _port.Children.Add(row);
 
-                if (ShipVisual.Parent is Panel oldParent)
-                    oldParent.Children.Remove(ShipVisual);
+            if (ShipVisual.Parent is Panel oldParent)
+                oldParent.Children.Remove(ShipVisual);
 
-                row.Children.Add(ShipVisual);
-            }
+            row.Children.Add(ShipVisual);
         }
+
 
         private void Ship_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -114,7 +114,6 @@ namespace Sea_batle.Game.Ship
                 if (ship != null)
                 {
                     ship.RotateShip();
-
                     e.Handled = true;
                 }
             }
@@ -124,31 +123,38 @@ namespace Sea_batle.Game.Ship
 
         private void RotateShip()
         {
-            ShipVisual.Orientation = ShipVisual.Orientation == Orientation.Horizontal
-                                     ? Orientation.Vertical
-                                     : Orientation.Horizontal;
+            if (IsPlaced)
+                ClearShipFromMap();
 
-            _orientation = ShipVisual.Orientation;
+            _orientation = _orientation == Orientation.Horizontal ? Orientation.Vertical : Orientation.Horizontal;
 
-            (ShipVisual.Width, ShipVisual.Height) = (ShipVisual.Height, ShipVisual.Width);
+            ShipVisual.Orientation = _orientation;
+
+            ShipVisual.Width = _orientation == Orientation.Horizontal ? _cellSize * Length : _cellSize;
+            ShipVisual.Height = _orientation == Orientation.Vertical ? _cellSize * Length : _cellSize;
 
             foreach (UIElement element in ShipVisual.Children)
-            {
                 if (element is Image part)
                 {
                     part.RenderTransformOrigin = new Point(0.5, 0.5);
 
-                    part.RenderTransform = ShipVisual.Orientation == Orientation.Vertical
-                        ? new RotateTransform(90)
-                        : new RotateTransform(0);
+                    part.RenderTransform = _orientation == Orientation.Vertical ? new RotateTransform(90) : new RotateTransform(0);
                 }
-            }
+
+            if (X.HasValue && Y.HasValue)
+                if (IsValidDropPosition(X.Value, Y.Value))
+                    PositionShipOnField(new Point(X.Value * _cellSize, Y.Value * _cellSize));
+                else
+                    ClearShipFromMap();
+
+            _redrawMap?.Invoke();
         }
 
         public void UpdateCoordinates(int x, int y)
         {
             X = x;
             Y = y;
+
             IsPlaced = true;
         }
 
@@ -175,15 +181,18 @@ namespace Sea_batle.Game.Ship
                 int y = Y.Value;
 
                 int shipLength = Length;
+
                 bool isHorizontal = _orientation == Orientation.Horizontal;
 
                 for (int i = 0; i < shipLength; i++)
-                {
-                    if (isHorizontal)
-                        _map.Cells[y, x + i].HasShip = false;
-                    else
-                        _map.Cells[y + i, x].HasShip = false;
-                }
+                    try
+                    {
+                        if (isHorizontal)
+                            _map.Cells[y, x + i].HasShip = false;
+                        else
+                            _map.Cells[y + i, x].HasShip = false;
+                    }
+                    catch { }
 
                 IsPlaced = false;
             }
@@ -198,6 +207,50 @@ namespace Sea_batle.Game.Ship
             return isHorizontal
                 ? x >= 0 && y >= 0 && y < mapSize && x + Length <= mapSize
                 : x >= 0 && x < mapSize && y >= 0 && y + Length <= mapSize;
+        }
+
+        private (double Left, double Top) CalcCoordTopLeft(Point position)
+        {
+            var (x, y) = ((int)Math.Floor(position.X / _cellSize), (int)Math.Floor(position.Y / _cellSize));
+
+            return (x * _cellSize, y * _cellSize);
+        }
+
+        public void PositionShipOnField(Point position)
+        {
+            var (left, top) = CalcCoordTopLeft(position);
+
+            Canvas.SetLeft(ShipVisual, left);
+            Canvas.SetTop(ShipVisual, top);
+
+            X = (int)(left / _cellSize);
+            Y = (int)(top / _cellSize);
+
+            for (int i = 0; i < Length; i++)
+                if (_orientation == Orientation.Horizontal)
+                    _map.Cells[Y.Value, X.Value + i].HasShip = true;
+                else
+                    _map.Cells[Y.Value + i, X.Value].HasShip = true;
+
+            IsPlaced = true;
+        }
+
+        public void UpdatePositionOnResize()
+        {
+            if (X.HasValue && Y.HasValue)
+            {
+                double left = X.Value * _cellSize - 30;
+                double top = Y.Value * _cellSize;
+
+                if (ShipVisual.Parent is Panel currentParent)
+                    currentParent.Children.Remove(ShipVisual);
+
+                Canvas.SetLeft(ShipVisual, left);
+                Canvas.SetTop(ShipVisual, top);
+
+                if (!_fieldCanvas.Children.Contains(ShipVisual))
+                    _fieldCanvas.Children.Add(ShipVisual);
+            }
         }
     }
 }
