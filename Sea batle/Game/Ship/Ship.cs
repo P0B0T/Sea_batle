@@ -223,8 +223,8 @@ namespace Sea_batle.Game.Ship
             Canvas.SetLeft(ShipVisual, left);
             Canvas.SetTop(ShipVisual, top);
 
-            X = (int)(left / _cellSize);
-            Y = (int)(top / _cellSize);
+            X = (int)Math.Round(left / _cellSize);
+            Y = (int)Math.Round(top / _cellSize);
 
             for (int i = 0; i < Length; i++)
                 if (_orientation == Orientation.Horizontal)

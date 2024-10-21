@@ -40,7 +40,7 @@ namespace Sea_batle.Pages
 
             Ships.Children.Clear();
 
-            CreateFleetIfNeeded();
+            CreateFleet();
 
             foreach (var ship in _fleet)
             {
@@ -51,7 +51,7 @@ namespace Sea_batle.Pages
             }
         }
 
-        private void CreateFleetIfNeeded()
+        private void CreateFleet()
         {
             if (_fleet.Count == 0)
             {
@@ -99,6 +99,7 @@ namespace Sea_batle.Pages
             if (droppedShipObj.IsPlaced) droppedShipObj.ClearShipFromMap();
 
             Panel oldParent = droppedShipObj.ShipVisual.Parent as Panel;
+
             oldParent?.Children.Remove(droppedShipObj.ShipVisual);
 
             var position = e.GetPosition(FieldCanv);
