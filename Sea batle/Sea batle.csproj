@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>bin\Debug\net8.0-windows\GameIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,12 +15,15 @@
     <None Remove="img\Icons\Close.png" />
     <None Remove="img\Icons\CloseFocused.png" />
     <None Remove="img\Icons\Collapse.png" />
-    <None Remove="img\Icons\GameIcon.jpg" />
     <None Remove="img\Icons\Maximize.png" />
     <None Remove="img\Icons\Minimaze.png" />
     <None Remove="img\Ship\Deck.png" />
     <None Remove="img\Ship\Nose.png" />
     <None Remove="img\Ship\Stern.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="bin\Debug\net8.0-windows\GameIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,7 +33,6 @@
     <Resource Include="img\Icons\Close.png" />
     <Resource Include="img\Icons\CloseFocused.png" />
     <Resource Include="img\Icons\Collapse.png" />
-    <Resource Include="img\Icons\GameIcon.jpg" />
     <Resource Include="img\Icons\Maximize.png" />
     <Resource Include="img\Icons\Minimaze.png" />
     <Resource Include="img\Ship\Stern.png" />
