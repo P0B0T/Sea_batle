@@ -1,6 +1,5 @@
 ﻿using Sea_batle.Game.Map;
 using Sea_batle.Game.Ship;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -85,10 +84,10 @@ namespace Sea_batle.Pages
             if (e.Data.GetDataPresent(DataFormats.Serializable))
             {
                 var droppedShip = e.Data.GetData(DataFormats.Serializable) as StackPanel;
+
                 var droppedShipObj = FindShipByVisual(droppedShip);
 
-                if (droppedShip != null && droppedShipObj != null)
-                    HandleShipDrop(droppedShipObj, e);
+                HandleShipDrop(droppedShipObj, e);
 
                 RedrawFieldAndShips();
             }
@@ -105,7 +104,7 @@ namespace Sea_batle.Pages
             var position = e.GetPosition(FieldCanv);
             var (x, y) = CalcCoordXY(position);
 
-            if (droppedShipObj.IsValidDropPosition(x, y))
+            if (droppedShipObj.IsValidPlacement(x, y))
             {
                 droppedShipObj.UpdateCoordinates(x, y);
 

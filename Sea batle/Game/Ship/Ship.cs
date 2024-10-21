@@ -142,7 +142,7 @@ namespace Sea_batle.Game.Ship
                 }
 
             if (X.HasValue && Y.HasValue)
-                if (IsValidDropPosition(X.Value, Y.Value))
+                if (IsValidPlacement(X.Value, Y.Value))
                     PositionShipOnField(new Point(X.Value * _cellSize, Y.Value * _cellSize));
                 else
                     ClearShipFromMap();
@@ -198,17 +198,6 @@ namespace Sea_batle.Game.Ship
             }
         }
 
-        public bool IsValidDropPosition(int x, int y)
-        {
-            bool isHorizontal = _orientation == Orientation.Horizontal;
-
-            int mapSize = _map.GetMapSize();
-
-            return isHorizontal
-                ? x >= 0 && y >= 0 && y < mapSize && x + Length <= mapSize
-                : x >= 0 && x < mapSize && y >= 0 && y + Length <= mapSize;
-        }
-
         private (double Left, double Top) CalcCoordTopLeft(Point position)
         {
             var (x, y) = ((int)Math.Floor(position.X / _cellSize), (int)Math.Floor(position.Y / _cellSize));
@@ -216,21 +205,81 @@ namespace Sea_batle.Game.Ship
             return (x * _cellSize, y * _cellSize);
         }
 
+        public bool IsValidPlacement(int x, int y)
+        {
+            bool isHorizontal = _orientation == Orientation.Horizontal;
+
+            int mapSize = _map.GetMapSize();
+
+            if (isHorizontal)
+                if (x < 0 || y < 0 || x + Length > mapSize || y >= mapSize)
+                    return false;
+            else
+                if (x < 0 || y < 0 || x >= mapSize || y + Length > mapSize)
+                    return false;
+
+            for (int i = 0; i < Length; i++)
+            {
+                int targetX = isHorizontal ? x + i : x;
+                int targetY = isHorizontal ? y : y + i;
+
+                if (_map.Cells[targetY, targetX].HasShip)
+                    return false;
+
+                if (!IsSurroundingCellsFree(targetX, targetY))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private bool IsSurroundingCellsFree(int x, int y)
+        {
+            int mapSize = _map.GetMapSize();
+
+            for (int offsetY = -1; offsetY <= 1; offsetY++)
+            {
+                for (int offsetX = -1; offsetX <= 1; offsetX++)
+                {
+                    int checkX = x + offsetX;
+                    int checkY = y + offsetY;
+
+                    if (checkX >= 0 && checkX < mapSize && checkY >= 0 && checkY < mapSize)
+                        if (_map.Cells[checkY, checkX].HasShip)
+                            return false;
+                }
+            }
+
+            return true;
+        }
+
         public void PositionShipOnField(Point position)
         {
             var (left, top) = CalcCoordTopLeft(position);
 
+            int x = (int)Math.Round(left / _cellSize);
+            int y = (int)Math.Round(top / _cellSize);
+
+            if (!IsValidPlacement(x, y))
+            {
+                ClearShipFromMap();
+
+                return;
+            }
+
             Canvas.SetLeft(ShipVisual, left);
             Canvas.SetTop(ShipVisual, top);
 
-            X = (int)Math.Round(left / _cellSize);
-            Y = (int)Math.Round(top / _cellSize);
+            X = x;
+            Y = y;
 
             for (int i = 0; i < Length; i++)
+            {
                 if (_orientation == Orientation.Horizontal)
                     _map.Cells[Y.Value, X.Value + i].HasShip = true;
                 else
                     _map.Cells[Y.Value + i, X.Value].HasShip = true;
+            }
 
             IsPlaced = true;
         }
