@@ -15,6 +15,7 @@
     <None Remove="img\Icons\Close.png" />
     <None Remove="img\Icons\CloseFocused.png" />
     <None Remove="img\Icons\Collapse.png" />
+    <None Remove="img\Icons\GameIcon.ico" />
     <None Remove="img\Icons\Maximize.png" />
     <None Remove="img\Icons\Minimaze.png" />
     <None Remove="img\Ship\Deck.png" />
@@ -33,6 +34,7 @@
     <Resource Include="img\Icons\Close.png" />
     <Resource Include="img\Icons\CloseFocused.png" />
     <Resource Include="img\Icons\Collapse.png" />
+    <Resource Include="img\Icons\GameIcon.ico" />
     <Resource Include="img\Icons\Maximize.png" />
     <Resource Include="img\Icons\Minimaze.png" />
     <Resource Include="img\Ship\Stern.png" />

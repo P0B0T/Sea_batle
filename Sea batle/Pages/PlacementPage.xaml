@@ -52,6 +52,7 @@
             Grid.Column="1"
             Width="220"
             Margin="50,0,0,0"
+            Click="RandomBtn_Click"
             Content="Случайно"
             Style="{StaticResource BaseButton}" />
     </Grid>

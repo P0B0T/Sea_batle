@@ -16,8 +16,8 @@ namespace Sea_batle.Game.Ship
         private double _cellSize;
         private Orientation _orientation;
 
-        public int? X { get; private set; }
-        public int? Y { get; private set; }
+        public int? X { get; set; }
+        public int? Y { get; set; }
         public bool IsPlaced { get; set; } = false;
         public int Length { get; private set; }
 
@@ -113,7 +113,10 @@ namespace Sea_batle.Game.Ship
 
                 if (ship != null)
                 {
-                    ship.RotateShip();
+                    var newOrientation = ship.ShipVisual.Orientation == Orientation.Horizontal ? Orientation.Vertical : Orientation.Horizontal;
+
+                    ship.RotateShip(newOrientation);
+
                     e.Handled = true;
                 }
             }
@@ -121,12 +124,12 @@ namespace Sea_batle.Game.Ship
                 DragDrop.DoDragDrop(shipVisual, new DataObject(DataFormats.Serializable, shipVisual), DragDropEffects.Move);
         }
 
-        private void RotateShip()
+        public void RotateShip(Orientation newOrientation)
         {
             if (IsPlaced)
                 ClearShipFromMap();
 
-            _orientation = _orientation == Orientation.Horizontal ? Orientation.Vertical : Orientation.Horizontal;
+            _orientation = newOrientation;
 
             ShipVisual.Orientation = _orientation;
 
@@ -134,18 +137,22 @@ namespace Sea_batle.Game.Ship
             ShipVisual.Height = _orientation == Orientation.Vertical ? _cellSize * Length : _cellSize;
 
             foreach (UIElement element in ShipVisual.Children)
+            {
                 if (element is Image part)
                 {
                     part.RenderTransformOrigin = new Point(0.5, 0.5);
 
                     part.RenderTransform = _orientation == Orientation.Vertical ? new RotateTransform(90) : new RotateTransform(0);
                 }
+            }
 
             if (X.HasValue && Y.HasValue)
+            {
                 if (IsValidPlacement(X.Value, Y.Value))
-                    PositionShipOnField(new Point(X.Value * _cellSize, Y.Value * _cellSize));
+                    PositionShipOnField(new Point((X.Value * _cellSize) + 1, (Y.Value * _cellSize) + 1));
                 else
                     ClearShipFromMap();
+            }
 
             _redrawMap?.Invoke();
         }
@@ -212,21 +219,23 @@ namespace Sea_batle.Game.Ship
             int mapSize = _map.GetMapSize();
 
             if (isHorizontal)
+            {
                 if (x < 0 || y < 0 || x + Length > mapSize || y >= mapSize)
                     return false;
+            }
             else
                 if (x < 0 || y < 0 || x >= mapSize || y + Length > mapSize)
                     return false;
-
+ 
             for (int i = 0; i < Length; i++)
             {
                 int targetX = isHorizontal ? x + i : x;
                 int targetY = isHorizontal ? y : y + i;
 
-                if (_map.Cells[targetY, targetX].HasShip)
+                if (targetX < 0 || targetX >= mapSize || targetY < 0 || targetY >= mapSize)
                     return false;
 
-                if (!IsSurroundingCellsFree(targetX, targetY))
+                if (_map.Cells[targetY, targetX].HasShip || !IsSurroundingCellsFree(targetX, targetY))
                     return false;
             }
 
@@ -253,19 +262,13 @@ namespace Sea_batle.Game.Ship
             return true;
         }
 
+
         public void PositionShipOnField(Point position)
         {
             var (left, top) = CalcCoordTopLeft(position);
 
             int x = (int)Math.Round(left / _cellSize);
             int y = (int)Math.Round(top / _cellSize);
-
-            if (!IsValidPlacement(x, y))
-            {
-                ClearShipFromMap();
-
-                return;
-            }
 
             Canvas.SetLeft(ShipVisual, left);
             Canvas.SetTop(ShipVisual, top);

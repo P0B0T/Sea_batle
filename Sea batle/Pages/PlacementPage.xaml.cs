@@ -14,11 +14,14 @@ namespace Sea_batle.Pages
         private readonly Map _map = new Map();
         private readonly List<Ship> _fleet = new List<Ship>();
 
+        private const int BattleShipCount = 1;
         private const int CruiserCount = 2;
         private const int DestroyerCount = 3;
         private const int SpeedboatCount = 4;
 
         public delegate Ship FindShip(StackPanel shipVisual);
+
+        Random random = new Random();
 
         public PlacementPage() => InitializeComponent();
 
@@ -54,8 +57,7 @@ namespace Sea_batle.Pages
         {
             if (_fleet.Count == 0)
             {
-                _fleet.Add(new Ship(Ships, GetCellSize(), 4, Orientation.Horizontal, _map, FindShipByVisual, FieldCanv, RedrawFieldAndShips));
-
+                AddShipsToFleet(BattleShipCount, 4);
                 AddShipsToFleet(CruiserCount, 3);
                 AddShipsToFleet(DestroyerCount, 2);
                 AddShipsToFleet(SpeedboatCount, 1);
@@ -102,6 +104,7 @@ namespace Sea_batle.Pages
             oldParent?.Children.Remove(droppedShipObj.ShipVisual);
 
             var position = e.GetPosition(FieldCanv);
+
             var (x, y) = CalcCoordXY(position);
 
             if (droppedShipObj.IsValidPlacement(x, y))
@@ -112,6 +115,44 @@ namespace Sea_batle.Pages
             }
             else
                 oldParent?.Children.Add(droppedShipObj.ShipVisual);
+        }
+
+        private void ClearField()
+        {
+            foreach (var ship in _fleet)
+            {
+                ship.ClearShipFromMap();
+
+                ship.X = null;
+                ship.Y = null;
+            }
+        }
+
+        private void RandomBtn_Click(object sender, RoutedEventArgs e)
+        {
+            ClearField();
+
+            foreach (var ship in _fleet)
+            {
+                bool placed = false;
+
+                while (!placed)
+                {
+                    ship.RotateShip(random.Next(2) == 0 ? Orientation.Horizontal : Orientation.Vertical);
+
+                    int x = random.Next(_map.GetMapSize());
+                    int y = random.Next(_map.GetMapSize());
+
+                    if (ship.IsValidPlacement(x, y))
+                    {
+                        ship.PositionShipOnField(new Point((x * GetCellSize()) + 1, (y * GetCellSize()) + 1));
+
+                        placed = true;
+                    }
+                }
+            }
+
+            RedrawFieldAndShips();
         }
     }
 }
