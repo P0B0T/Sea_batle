@@ -43,6 +43,7 @@
             Name="StartBtn"
             Grid.Row="1"
             Grid.ColumnSpan="2"
+            Click="StartBtn_Click"
             Content="В бой!"
             Style="{StaticResource BaseButton}" />
 

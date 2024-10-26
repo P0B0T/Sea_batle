@@ -1,7 +1,10 @@
-﻿using Sea_batle.Game.Map;
+﻿using Sea_batle.Assistans;
+using Sea_batle.Game.Map;
 using Sea_batle.Game.Ship;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Sea_batle.Pages
 {
@@ -19,9 +22,9 @@ namespace Sea_batle.Pages
         private const int DestroyerCount = 3;
         private const int SpeedboatCount = 4;
 
-        public delegate Ship FindShip(StackPanel shipVisual);
+        private readonly Random _random = new Random();
 
-        Random random = new Random();
+        private double _cellSize;
 
         public PlacementPage() => InitializeComponent();
 
@@ -29,16 +32,18 @@ namespace Sea_batle.Pages
 
         private void BackBtn_Click(object sender, RoutedEventArgs e) => NavigationService.GoBack();
 
-        private double GetCellSize() => Math.Min(FieldCanv.ActualWidth, FieldCanv.ActualHeight) / _map.GetMapSize();
+        private double GetCellSizeMthd(Canvas field) => Math.Min(field.ActualWidth, field.ActualHeight) / _map.GetMapSize();
 
         private (int X, int Y) CalcCoordXY(Point position) =>
-            ((int)(position.X / GetCellSize()), (int)(position.Y / GetCellSize()));
+            ((int)(position.X / _cellSize), (int)(position.Y / _cellSize));
 
         private void FieldCanv_SizeChanged(object sender, SizeChangedEventArgs e) => RedrawFieldAndShips();
 
         private void RedrawFieldAndShips()
         {
-            _map.DrawMap(FieldCanv, GetCellSize());
+            _cellSize = GetCellSizeMthd(FieldCanv);
+
+            _map.DrawMap(FieldCanv, _cellSize);
 
             Ships.Children.Clear();
 
@@ -46,9 +51,9 @@ namespace Sea_batle.Pages
 
             foreach (var ship in _fleet)
             {
-                ship.UpdateSize(GetCellSize());
+                ship.UpdateSize(_cellSize);
 
-                if (ship.IsPlaced) ship.UpdatePositionOnResize();
+                if (ship.IsPlaced) ship.UpdatePositionOnResize(FieldCanv);
                 else ship.OutputShip();
             }
         }
@@ -69,7 +74,7 @@ namespace Sea_batle.Pages
         private void AddShipsToFleet(int count, int shipLength)
         {
             for (int i = 0; i < count; i++)
-                _fleet.Add(new Ship(Ships, GetCellSize(), shipLength, Orientation.Horizontal, _map, FindShipByVisual, FieldCanv, RedrawFieldAndShips));
+                _fleet.Add(new Ship(Ships, _cellSize, shipLength, Orientation.Horizontal, _map, FindShipByVisual, FieldCanv, RedrawFieldAndShips));
         }
 
         private void AddFleetToUI()
@@ -138,14 +143,14 @@ namespace Sea_batle.Pages
 
                 while (!placed)
                 {
-                    ship.RotateShip(random.Next(2) == 0 ? Orientation.Horizontal : Orientation.Vertical);
+                    ship.RotateShip(_random.Next(2) == 0 ? Orientation.Horizontal : Orientation.Vertical);
 
-                    int x = random.Next(_map.GetMapSize());
-                    int y = random.Next(_map.GetMapSize());
+                    int x = _random.Next(_map.GetMapSize());
+                    int y = _random.Next(_map.GetMapSize());
 
                     if (ship.IsValidPlacement(x, y))
                     {
-                        ship.PositionShipOnField(new Point((x * GetCellSize()) + 1, (y * GetCellSize()) + 1));
+                        ship.PositionShipOnField(new Point((x * _cellSize) + 1, (y * _cellSize) + 1));
 
                         placed = true;
                     }
@@ -153,6 +158,20 @@ namespace Sea_batle.Pages
             }
 
             RedrawFieldAndShips();
+        }
+
+        private void StartBtn_Click(object sender, RoutedEventArgs e) 
+        {
+            foreach (var ship in _fleet)
+                if (ship.X == null && ship.Y == null)
+                {
+                    MessageBoxCustom message = new MessageBoxCustom("Information", "Разместите все корабли.", "Ошибка", new Uri("pack://application:,,,/img/Icons/Error.png"));
+                    message.ShowMessage();
+
+                    return;
+                }
+
+            _mainWindow.OutputFrame.Navigate(new GamePage(GetCellSizeMthd, _fleet));
         }
     }
 }

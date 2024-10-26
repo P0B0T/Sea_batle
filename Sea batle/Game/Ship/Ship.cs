@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using static Sea_batle.Pages.PlacementPage;
+using static Sea_batle.Assistans.Delegates;
 
 namespace Sea_batle.Game.Ship
 {
@@ -201,6 +201,9 @@ namespace Sea_batle.Game.Ship
                     }
                     catch { }
 
+                X = null;
+                Y = null;
+
                 IsPlaced = false;
             }
         }
@@ -287,7 +290,7 @@ namespace Sea_batle.Game.Ship
             IsPlaced = true;
         }
 
-        public void UpdatePositionOnResize()
+        public void UpdatePositionOnResize(Canvas field)
         {
             if (X.HasValue && Y.HasValue)
             {
@@ -300,8 +303,8 @@ namespace Sea_batle.Game.Ship
                 Canvas.SetLeft(ShipVisual, left);
                 Canvas.SetTop(ShipVisual, top);
 
-                if (!_fieldCanvas.Children.Contains(ShipVisual))
-                    _fieldCanvas.Children.Add(ShipVisual);
+                if (!field.Children.Contains(ShipVisual))
+                    field.Children.Add(ShipVisual);
             }
         }
     }

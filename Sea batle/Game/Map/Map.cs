@@ -31,8 +31,7 @@ namespace Sea_batle.Game.Map
                         Width = cellSize,
                         Height = cellSize,
                         Stroke = Brushes.White,
-                        //Fill = Brushes.Transparent
-                        Fill = Cells[row, col].HasShip ? Brushes.Gray : Brushes.Transparent
+                        Fill = Brushes.Transparent
                     };
 
                     Canvas.SetLeft(rect, col * cellSize);
