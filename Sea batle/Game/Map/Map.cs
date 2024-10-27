@@ -8,14 +8,14 @@ namespace Sea_batle.Game.Map
     {
         public Cell[,] Cells { get; private set; }
 
-        private const int MapSize = 10;
+        private const int mapSize = 10;
 
         public Map()
         {
-            Cells = new Cell[MapSize, MapSize];
+            Cells = new Cell[mapSize, mapSize];
 
-            for (int row = 0; row < MapSize; row++)
-                for (int col = 0; col < MapSize; col++)
+            for (int row = 0; row < mapSize; row++)
+                for (int col = 0; col < mapSize; col++)
                     Cells[row, col] = new Cell();
         }
 
@@ -23,8 +23,8 @@ namespace Sea_batle.Game.Map
         {
             field.Children.Clear();
 
-            for (int row = 0; row < MapSize; row++)
-                for (int col = 0; col < MapSize; col++)
+            for (int row = 0; row < mapSize; row++)
+                for (int col = 0; col < mapSize; col++)
                 {
                     Rectangle rect = new Rectangle
                     {
@@ -41,6 +41,8 @@ namespace Sea_batle.Game.Map
                 }
         }
 
-        public int GetMapSize() => MapSize;
+        public int GetMapSize() => mapSize;
+
+        public double GetCellSize(Canvas field) => Math.Min(field.ActualWidth, field.ActualHeight) / mapSize;
     }
 }

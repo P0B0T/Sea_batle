@@ -161,8 +161,6 @@ namespace Sea_batle.Game.Ship
         {
             X = x;
             Y = y;
-
-            IsPlaced = true;
         }
 
         public void UpdateSize(double cellSize)
@@ -250,7 +248,6 @@ namespace Sea_batle.Game.Ship
             int mapSize = _map.GetMapSize();
 
             for (int offsetY = -1; offsetY <= 1; offsetY++)
-            {
                 for (int offsetX = -1; offsetX <= 1; offsetX++)
                 {
                     int checkX = x + offsetX;
@@ -260,7 +257,6 @@ namespace Sea_batle.Game.Ship
                         if (_map.Cells[checkY, checkX].HasShip)
                             return false;
                 }
-            }
 
             return true;
         }

@@ -1,8 +1,7 @@
-﻿using Sea_batle.Game.Map;
-using Sea_batle.Game.Ship;
+﻿using Sea_batle.Assistans;
+using Sea_batle.Game.Map;
 using System.Windows;
 using System.Windows.Controls;
-using static Sea_batle.Assistans.Delegates;
 
 namespace Sea_batle.Pages
 {
@@ -14,16 +13,18 @@ namespace Sea_batle.Pages
         private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
         private readonly Map _mapPlayer = new Map();
         private readonly Map _mapBot = new Map();
-        private readonly List<Ship> _fleetPlayer = new List<Ship>();
+
+        private readonly FleetManager _fleetPlayer;
+        private readonly FleetManager _fleetBot;
 
         private double _cellSize;
 
-        public GamePage(GetCellSize cellSize, List<Ship> fleet)
+        public GamePage(FleetManager fleet)
         {
             InitializeComponent();
 
-            _cellSize = cellSize(FieldCanvPlayer);
             _fleetPlayer = fleet;
+            _fleetBot = fleet;
         }
 
         private void Page_Loaded(object sender, RoutedEventArgs e) => _mainWindow.TopPanel.UpdateTitle(Title);
@@ -32,15 +33,17 @@ namespace Sea_batle.Pages
 
         private void RedrawFieldsAndShips()
         {
+            _cellSize = _mapPlayer.GetCellSize(FieldCanvPlayer);
+
             _mapPlayer.DrawMap(FieldCanvPlayer, _cellSize);
             _mapBot.DrawMap(FieldCanvBot, _cellSize);
 
-            //foreach (var ship in _fleetPlayer)
-            //{
-            //    ship.UpdateSize(_cellSize);
+            foreach (var ship in _fleetPlayer.Fleet)
+            {
+                ship.UpdateSize(_cellSize);
 
-            //    ship.UpdatePositionOnResize(FieldCanvPlayer);
-            //}
+                ship.UpdatePositionOnResize(FieldCanvPlayer);
+            }
         }
     }
 }
