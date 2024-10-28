@@ -5,29 +5,34 @@ using System.Windows.Controls;
 
 namespace Sea_batle.Pages
 {
-    /// <summary>
-    /// Логика взаимодействия для GamePage.xaml
-    /// </summary>
     public partial class GamePage : Page
     {
         private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
         private readonly Map _mapPlayer = new Map();
-        private readonly Map _mapBot = new Map();
-
+        private readonly Map _mapBot = new Map(); 
         private readonly FleetManager _fleetPlayer;
-        private readonly FleetManager _fleetBot;
 
+        private FleetManager _fleetBot;
         private double _cellSize;
 
         public GamePage(FleetManager fleet)
         {
-            InitializeComponent();
-
             _fleetPlayer = fleet;
-            _fleetBot = fleet;
+
+            InitializeComponent();
         }
 
-        private void Page_Loaded(object sender, RoutedEventArgs e) => _mainWindow.TopPanel.UpdateTitle(Title);
+        private void Page_Loaded(object sender, RoutedEventArgs e)
+        {
+            _mainWindow.TopPanel.UpdateTitle(Title);
+
+            _fleetBot.RandomPlacement(_cellSize);
+        }
+
+        private void Page_Initialized(object sender, EventArgs e)
+        {
+            _fleetBot = new FleetManager(_mapBot, _cellSize, FieldCanvBot, ShipsBot, RedrawFieldsAndShips);
+        }
 
         private void FieldCanvBot_SizeChanged(object sender, SizeChangedEventArgs e) => RedrawFieldsAndShips();
 
@@ -41,8 +46,17 @@ namespace Sea_batle.Pages
             foreach (var ship in _fleetPlayer.Fleet)
             {
                 ship.UpdateSize(_cellSize);
-
                 ship.UpdatePositionOnResize(FieldCanvPlayer);
+            }
+
+            foreach (var ship in _fleetBot.Fleet)
+            {
+                ship.UpdateSize(_cellSize);
+
+                if (ship.IsPlaced) ship.UpdatePositionOnResize(FieldCanvBot);
+                else ship.OutputShip();
+
+                ship.ShipVisual.Visibility = Visibility.Hidden;
             }
         }
     }
