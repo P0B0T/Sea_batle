@@ -1,4 +1,5 @@
 ﻿using Sea_batle.Assistans;
+using Sea_batle.Game;
 using Sea_batle.Game.Map;
 using System.Windows;
 using System.Windows.Controls;
@@ -9,11 +10,13 @@ namespace Sea_batle.Pages
     {
         private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
         private readonly Map _mapPlayer = new Map();
-        private readonly Map _mapBot = new Map(); 
         private readonly FleetManager _fleetPlayer;
 
+        private Map _mapBot; 
         private FleetManager _fleetBot;
+
         private double _cellSize;
+        private GameManager _game;
 
         public GamePage(FleetManager fleet)
         {
@@ -31,7 +34,11 @@ namespace Sea_batle.Pages
 
         private void Page_Initialized(object sender, EventArgs e)
         {
-            _fleetBot = new FleetManager(_mapBot, _cellSize, FieldCanvBot, ShipsBot, RedrawFieldsAndShips);
+            _mapBot = new Map(RedrawFieldsAndShips);
+
+            _fleetBot = new FleetManager(_mapBot, _cellSize, FieldCanvBot, ShipsBot, RedrawFieldsAndShips, Visibility.Hidden);
+
+            _game = new GameManager(_mapPlayer, _mapBot, _fleetPlayer, _fleetBot);
         }
 
         private void FieldCanvBot_SizeChanged(object sender, SizeChangedEventArgs e) => RedrawFieldsAndShips();
@@ -41,12 +48,13 @@ namespace Sea_batle.Pages
             _cellSize = _mapPlayer.GetCellSize(FieldCanvPlayer);
 
             _mapPlayer.DrawMap(FieldCanvPlayer, _cellSize);
-            _mapBot.DrawMap(FieldCanvBot, _cellSize);
+            _mapBot.DrawMap(FieldCanvBot, _cellSize, true, _game);
 
             foreach (var ship in _fleetPlayer.Fleet)
             {
                 ship.UpdateSize(_cellSize);
                 ship.UpdatePositionOnResize(FieldCanvPlayer);
+                ship.UpdateSunkPanelPosition(FieldCanvPlayer);
             }
 
             foreach (var ship in _fleetBot.Fleet)
@@ -56,7 +64,7 @@ namespace Sea_batle.Pages
                 if (ship.IsPlaced) ship.UpdatePositionOnResize(FieldCanvBot);
                 else ship.OutputShip();
 
-                ship.ShipVisual.Visibility = Visibility.Hidden;
+                ship.UpdateSunkPanelPosition(FieldCanvBot);
             }
         }
     }

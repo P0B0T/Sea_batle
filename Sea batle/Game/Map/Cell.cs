@@ -1,6 +1,4 @@
-﻿using System.Windows.Controls;
-
-namespace Sea_batle.Game.Map
+﻿namespace Sea_batle.Game.Map
 {
     public class Cell
     {

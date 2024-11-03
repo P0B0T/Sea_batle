@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using static Sea_batle.Assistans.Delegates;
 
 namespace Sea_batle.Game.Ship
@@ -15,6 +16,7 @@ namespace Sea_batle.Game.Ship
 
         private double _cellSize;
         private Orientation _orientation;
+        private StackPanel _sunkPanel;
 
         public int? X { get; set; }
         public int? Y { get; set; }
@@ -26,7 +28,7 @@ namespace Sea_batle.Game.Ship
         private readonly FindShip _findShip;
         private readonly Action _redrawMap;
 
-        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, Map.Map map, FindShip findShip, Canvas fieldCanvas, Action redrawMap, int? x = null, int? y = null)
+        public Ship(StackPanel port, double cellSize, int shipLength, Orientation orientation, Map.Map map, FindShip findShip, Canvas fieldCanvas, Action redrawMap, Visibility visibility, int? x = null, int? y = null)
         {
             _port = port;
             _cellSize = cellSize;
@@ -41,10 +43,10 @@ namespace Sea_batle.Game.Ship
             _findShip = findShip;
             _redrawMap = redrawMap;
 
-            ShipVisual = CreateShip();
+            ShipVisual = CreateShip(visibility);
         }
 
-        private StackPanel CreateShip()
+        private StackPanel CreateShip(Visibility visibility)
         {
             var shipVisual = new StackPanel
             {
@@ -65,6 +67,8 @@ namespace Sea_batle.Game.Ship
 
             if (Length > 1)
                 shipVisual.Children.Add(CreatorImg.CreateImg("pack://application:,,,/img/Ship/Stern.png", _cellSize));
+
+            shipVisual.Visibility = visibility == Visibility.Hidden ? Visibility.Hidden : Visibility.Visible;
 
             return shipVisual;
         }
@@ -293,15 +297,116 @@ namespace Sea_batle.Game.Ship
                 double left = X.Value * _cellSize - 30;
                 double top = Y.Value * _cellSize;
 
-                if (ShipVisual.Parent is Panel currentParent)
-                    currentParent.Children.Remove(ShipVisual);
-
-                Canvas.SetLeft(ShipVisual, left);
-                Canvas.SetTop(ShipVisual, top);
-
-                if (!field.Children.Contains(ShipVisual))
-                    field.Children.Add(ShipVisual);
+                UpdatePanel(ShipVisual, field, left, top);
             }
+        }
+
+        private void UpdatePanel(StackPanel visualPanel, Canvas field, double left, double top)
+        {
+            if (visualPanel != null)
+            {
+                if (visualPanel.Parent is Panel currentParent)
+                    currentParent.Children.Remove(visualPanel);
+
+                Canvas.SetLeft(visualPanel, left);
+                Canvas.SetTop(visualPanel, top);
+
+                if (!field.Children.Contains(visualPanel))
+                    field.Children.Add(visualPanel);
+            }
+        }
+
+        public bool IsLocatedAt(int row, int col)
+        {
+            for (int i = 0; i < Length; i++)
+            {
+                int checkX = _orientation == Orientation.Horizontal ? X.Value + i : X.Value;
+                int checkY = _orientation == Orientation.Horizontal ? Y.Value : Y.Value + i;
+
+                if (checkX == col && checkY == row)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool IsSunk()
+        {
+            for (int i = 0; i < Length; i++)
+            {
+                int checkX = _orientation == Orientation.Horizontal ? X.Value + i : X.Value;
+                int checkY = _orientation == Orientation.Horizontal ? Y.Value : Y.Value + i;
+
+                if (!_map.Cells[checkY, checkX].IsHit)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public void ShowSunkShip()
+        {
+            ShipVisual.Visibility = Visibility.Visible;
+
+            _sunkPanel = new StackPanel
+            {
+                Orientation = _orientation,
+                Margin = new Thickness(30, 0, 0, 0),
+                Width = ShipVisual.Width,
+                Height = ShipVisual.Height,
+                Background = Brushes.Transparent
+            };
+
+            for (int i = 0; i < Length; i++)
+            {
+                Rectangle overlay = new Rectangle
+                {
+                    Width = _cellSize,
+                    Height = _cellSize,
+                    Fill = Brushes.Red,
+                    Opacity = 0.2
+                };
+
+                _sunkPanel.Children.Add(overlay);
+            }
+
+            if (ShipVisual.Parent is Canvas parentCanvas)
+            {
+                parentCanvas.Children.Add(_sunkPanel);
+
+                Canvas.SetLeft(_sunkPanel, Canvas.GetLeft(ShipVisual));
+                Canvas.SetTop(_sunkPanel, Canvas.GetTop(ShipVisual));
+            }
+
+            for (int i = 0; i < Length; i++)
+            {
+                int shipX = _orientation == Orientation.Horizontal ? X.Value + i : X.Value;
+                int shipY = _orientation == Orientation.Horizontal ? Y.Value : Y.Value + i;
+
+                MarkSurroundingCellsAsMiss(shipX, shipY);
+            }
+        }
+
+        public void UpdateSunkPanelPosition(Canvas field) => UpdatePanel(_sunkPanel, field, Canvas.GetLeft(ShipVisual), Canvas.GetTop(ShipVisual));
+
+        private void MarkSurroundingCellsAsMiss(int x, int y)
+        {
+            int mapSize = _map.GetMapSize();
+
+            for (int offsetY = -1; offsetY <= 1; offsetY++)
+                for (int offsetX = -1; offsetX <= 1; offsetX++)
+                {
+                    int checkX = x + offsetX;
+                    int checkY = y + offsetY;
+
+                    if (checkX >= 0 && checkX < mapSize && checkY >= 0 && checkY < mapSize)
+                    {
+                        var cell = _map.Cells[checkY, checkX];
+
+                        if (!cell.HasShip)
+                            cell.IsMiss = true;
+                    }
+                }
         }
     }
 }

@@ -17,16 +17,18 @@ namespace Sea_batle.Assistans
         private readonly Canvas _fieldCanvas;
         private readonly StackPanel _shipPanel;
         private readonly Action _redrawAction;
+        private readonly Visibility _visible;
 
         public List<Ship> Fleet { get; private set; } = new List<Ship>();
 
-        public FleetManager(Map map, double cellSize, Canvas fieldCanvas, StackPanel shipPanel, Action redrawAction)
+        public FleetManager(Map map, double cellSize, Canvas fieldCanvas, StackPanel shipPanel, Action redrawAction, Visibility visibility = Visibility.Visible)
         {
             _map = map;
             _cellSize = cellSize;
             _fieldCanvas = fieldCanvas;
             _shipPanel = shipPanel;
             _redrawAction = redrawAction;
+            _visible = visibility;
 
             CreateFleet();
         }
@@ -45,7 +47,7 @@ namespace Sea_batle.Assistans
         {
             for (int i = 0; i < count; i++)
             {
-                var ship = new Ship(_shipPanel, _cellSize, shipLength, Orientation.Horizontal, _map, FindShipByVisual, _fieldCanvas, _redrawAction);
+                var ship = new Ship(_shipPanel, _cellSize, shipLength, Orientation.Horizontal, _map, FindShipByVisual, _fieldCanvas, _redrawAction, _visible);
 
                 Fleet.Add(ship);
             }
@@ -54,10 +56,8 @@ namespace Sea_batle.Assistans
         private void AddFleetToUI()
         {
             foreach (var ship in Fleet)
-            {
                 if (!ship.IsPlaced)
                     ship.OutputShip();
-            }
         }
 
         public void ClearField()
@@ -96,6 +96,16 @@ namespace Sea_batle.Assistans
             }
 
             _redrawAction?.Invoke();
+        }
+
+        public bool IsFleetEmpty() => Fleet.Count == 0;
+
+        public void CheckAndShowSunkShips(int row, int col)
+        {
+            var ship = Fleet.FirstOrDefault(s => s.IsLocatedAt(row, col));
+
+            if (ship != null && ship.IsSunk())
+                ship.ShowSunkShip();
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Sea_batle
         {
             try
             {
-                if (e.ChangedButton == MouseButton.Left)
+                if (e.LeftButton == MouseButtonState.Pressed)
                     this.DragMove();
             }
             catch { }
