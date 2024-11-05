@@ -25,6 +25,8 @@ namespace Sea_batle.Game.Ship
 
         public StackPanel ShipVisual { get; private set; }
 
+        public bool Sunk { get; private set; } = false;
+
         private readonly FindShip _findShip;
         private readonly Action _redrawMap;
 
@@ -340,6 +342,8 @@ namespace Sea_batle.Game.Ship
                 if (!_map.Cells[checkY, checkX].IsHit)
                     return false;
             }
+
+            Sunk = true;
 
             return true;
         }

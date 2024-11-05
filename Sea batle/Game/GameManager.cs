@@ -1,4 +1,5 @@
 ﻿using Sea_batle.Assistans;
+using Sea_batle.Pages;
 
 namespace Sea_batle.Game
 {
@@ -8,18 +9,25 @@ namespace Sea_batle.Game
         private Map.Map _botMap;
         private FleetManager _playerFleet;
         private FleetManager _botFleet;
+        private GamePage? _gamePage;
 
-        public GameManager(Map.Map playerMap, Map.Map botMap, FleetManager playerFleet, FleetManager botFleet)
+        private bool _isPlayerTurn = true;
+
+        private readonly Action _redrawAction;
+
+        public GameManager(Map.Map playerMap, Map.Map botMap, FleetManager playerFleet, FleetManager botFleet, Action redrawAction, GamePage? gamePage = null)
         {
             _playerMap = playerMap;
             _botMap = botMap;
             _playerFleet = playerFleet;
             _botFleet = botFleet;
+            _gamePage = gamePage ?? _gamePage;
+            _redrawAction = redrawAction;
         }
 
-        public void PlayerMove(int row, int col)
+        private void Shoot(Map.Map map, int row, int col, FleetManager fleet)
         {
-            var cell = _botMap.Cells[row, col];
+            var cell = map.Cells[row, col];
 
             if (cell.IsHit || cell.IsMiss) return;
 
@@ -27,42 +35,45 @@ namespace Sea_batle.Game
             {
                 cell.IsHit = true;
 
-                _botFleet.CheckAndShowSunkShips(row, col);
+                fleet.CheckAndShowSunkShips(row, col);
             }
             else
-            {
                 cell.IsMiss = true;
-            }
+        }
+
+        public async void PlayerMove(int row, int col)
+        {
+            if (!_isPlayerTurn) return;
+
+            _isPlayerTurn = false;
+
+            Shoot(_botMap, row, col, _botFleet);
+
+            _gamePage?.RotateArrow(180);
+            _redrawAction.Invoke();
 
             if (IsGameOver())
                 EndGame();
             else
+            {
+                await Task.Delay(1500);
+
                 BotMove();
+
+                _isPlayerTurn = true;
+            }
         }
 
         private void BotMove()
         {
-            //// Логика для хода бота: выбираем случайную или стратегическую клетку для выстрела
-            //int row = /* Вычисление строки для выстрела */;
-            //int col = /* Вычисление столбца для выстрела */;
+            int row = 0; // получать рандомно или отталкиваясь от попадания
+            int col = 0; // получать рандомно или отталкиваясь от попадания
 
-            //var cell = _playerMap.Cells[row, col];
+            Shoot(_playerMap, row, col, _playerFleet);
 
-            //if (cell.HasShip)
-            //{
-            //    cell.IsHit = true;
+            _gamePage?.RotateArrow(360);
+            _redrawAction.Invoke();
 
-            //    //if (IsShipSunk(_playerFleet, row, col))
-            //    //{
-            //    //    // Обработка потопленного корабля игрока
-            //    //}
-            //}
-            //else
-            //{
-            //    cell.IsMiss = true;
-            //}
-
-            // Проверяем, окончена ли игра
             if (IsGameOver())
                 EndGame();
         }
@@ -71,7 +82,10 @@ namespace Sea_batle.Game
 
         private void EndGame()
         {
-            // Логика окончания игры: объявляем победителя, показываем сообщение и т.д.
+            var winner = _playerFleet.IsFleetEmpty() ? "Вы проиграли (" : "Вы победили!";
+
+            MessageBoxCustom message = new MessageBoxCustom("Information", winner, "Победа!", new Uri("pack://application:,,,/img/Icons/Information.png"));
+            message.ShowMessage();
         }
     }
 }

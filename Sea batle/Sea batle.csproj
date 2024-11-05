@@ -23,7 +23,6 @@
     <None Remove="img\Icons\Maximize.png" />
     <None Remove="img\Icons\Minimaze.png" />
     <None Remove="img\Icons\Miss.png" />
-    <None Remove="img\Icons\Question.png" />
     <None Remove="img\Ship\Deck.png" />
     <None Remove="img\Ship\Nose.png" />
     <None Remove="img\Ship\Stern.png" />
@@ -48,7 +47,6 @@
     <Resource Include="img\Icons\Maximize.png" />
     <Resource Include="img\Icons\Minimaze.png" />
     <Resource Include="img\Icons\Miss.png" />
-    <Resource Include="img\Icons\Question.png" />
     <Resource Include="img\Ship\Stern.png" />
     <Resource Include="img\Ship\Nose.png" />
     <Resource Include="img\Ship\Deck.png" />

@@ -31,6 +31,7 @@
         <StackPanel Name="ShipsBot" Visibility="Hidden" />
 
         <Image
+            Name="ArrowImg"
             Grid.Column="1"
             Width="70"
             Height="70"

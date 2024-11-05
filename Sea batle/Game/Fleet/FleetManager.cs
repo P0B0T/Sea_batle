@@ -98,13 +98,13 @@ namespace Sea_batle.Assistans
             _redrawAction?.Invoke();
         }
 
-        public bool IsFleetEmpty() => Fleet.Count == 0;
+        public bool IsFleetEmpty() => Fleet.All(ship => ship.Sunk);
 
         public void CheckAndShowSunkShips(int row, int col)
         {
             var ship = Fleet.FirstOrDefault(s => s.IsLocatedAt(row, col));
 
-            if (ship != null && ship.IsSunk())
+            if (ship.IsSunk())
                 ship.ShowSunkShip();
         }
     }

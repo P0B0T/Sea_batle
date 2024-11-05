@@ -12,13 +12,10 @@ namespace Sea_batle.Game.Map
 
         private const int mapSize = 10;
 
-        private readonly Action? _redrawAction;
         private readonly SolidColorBrush _hoverColor = new SolidColorBrush(Color.FromRgb(135, 194, 250));
 
-        public Map(Action? redrawAction = null)
+        public Map()
         {
-            _redrawAction = redrawAction ?? _redrawAction;
-
             Cells = new Cell[mapSize, mapSize];
 
             for (int row = 0; row < mapSize; row++)
@@ -63,12 +60,7 @@ namespace Sea_batle.Game.Map
 
         }
 
-        private void Cell_Click(GameManager game, int row, int col)
-        {
-            game.PlayerMove(row, col);
-
-            _redrawAction?.Invoke();
-        }
+        private void Cell_Click(GameManager game, int row, int col) => game.PlayerMove(row, col);
 
         private void Cell_MouseEnter(object sender, MouseEventArgs e)
         {
