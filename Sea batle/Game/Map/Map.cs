@@ -23,7 +23,7 @@ namespace Sea_batle.Game.Map
                     Cells[row, col] = new Cell();
         }
 
-        public void DrawMap(Canvas field, double cellSize, bool clickable = false, GameManager? game = null)
+        public void DrawMap(Canvas field, double cellSize, bool priority, bool clickable = false, GameManager? game = null)
         {
             field.Children.Clear();
 
@@ -42,6 +42,9 @@ namespace Sea_batle.Game.Map
                                Cells[row, col].IsMiss ? new ImageBrush(new BitmapImage(new Uri("pack://application:,,,/img/Icons/Miss.png"))) :
                                Brushes.Transparent
                     };
+
+                    if (priority)
+                        Panel.SetZIndex(rect, 1);
 
                     Canvas.SetLeft(rect, currentCol * cellSize);
                     Canvas.SetTop(rect, currentRow * cellSize);

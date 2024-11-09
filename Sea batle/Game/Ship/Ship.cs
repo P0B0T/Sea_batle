@@ -352,6 +352,8 @@ namespace Sea_batle.Game.Ship
         {
             ShipVisual.Visibility = Visibility.Visible;
 
+            Panel.SetZIndex(ShipVisual, 1);
+
             _sunkPanel = new StackPanel
             {
                 Orientation = _orientation,

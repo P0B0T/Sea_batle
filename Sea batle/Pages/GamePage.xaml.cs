@@ -10,7 +10,8 @@ namespace Sea_batle.Pages
     public partial class GamePage : Page
     {
         private readonly MainWindow _mainWindow = (MainWindow)Application.Current.MainWindow;
-        private readonly Map _mapPlayer = new Map();
+
+        private readonly Map _mapPlayer;
         private readonly FleetManager _fleetPlayer;
 
         private Map _mapBot = new Map();
@@ -19,9 +20,10 @@ namespace Sea_batle.Pages
         private double _cellSize;
         private GameManager _game;
 
-        public GamePage(FleetManager fleet)
+        public GamePage(FleetManager fleet, Map map)
         {
             _fleetPlayer = fleet;
+            _mapPlayer = map;
 
             InitializeComponent();
         }
@@ -37,7 +39,7 @@ namespace Sea_batle.Pages
         {
             _fleetBot = new FleetManager(_mapBot, _cellSize, FieldCanvBot, ShipsBot, RedrawFieldsAndShips, Visibility.Hidden);
 
-            _game = new GameManager(_mapPlayer, _mapBot, _fleetPlayer, _fleetBot, RedrawFieldsAndShips,this);
+            _game = new GameManager(_mapPlayer, _mapBot, _fleetPlayer, _fleetBot, RedrawFieldsAndShips, this);
         }
 
         private void FieldCanvBot_SizeChanged(object sender, SizeChangedEventArgs e) => RedrawFieldsAndShips();
@@ -46,8 +48,8 @@ namespace Sea_batle.Pages
         {
             _cellSize = _mapPlayer.GetCellSize(FieldCanvPlayer);
 
-            _mapPlayer.DrawMap(FieldCanvPlayer, _cellSize);
-            _mapBot.DrawMap(FieldCanvBot, _cellSize, true, _game);
+            _mapPlayer.DrawMap(FieldCanvPlayer, _cellSize, true);
+            _mapBot.DrawMap(FieldCanvBot, _cellSize, false, true, _game);
 
             foreach (var ship in _fleetPlayer.Fleet)
             {

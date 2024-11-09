@@ -35,7 +35,7 @@ namespace Sea_batle.Pages
         {
             _cellSize = _map.GetCellSize(FieldCanv);
 
-            _map.DrawMap(FieldCanv, _cellSize);
+            _map.DrawMap(FieldCanv, _cellSize, false);
 
             Ships.Children.Clear();
 
@@ -102,7 +102,7 @@ namespace Sea_batle.Pages
                     return;
                 }
 
-            _mainWindow.OutputFrame.Navigate(new GamePage(_fleet));
+            _mainWindow.OutputFrame.Navigate(new GamePage(_fleet, _map));
         }
     }
 }

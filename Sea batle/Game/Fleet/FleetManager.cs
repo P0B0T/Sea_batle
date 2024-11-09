@@ -104,7 +104,7 @@ namespace Sea_batle.Assistans
         {
             var ship = Fleet.FirstOrDefault(s => s.IsLocatedAt(row, col));
 
-            if (ship.IsSunk())
+            if (ship != null && ship.IsSunk())
                 ship.ShowSunkShip();
         }
     }

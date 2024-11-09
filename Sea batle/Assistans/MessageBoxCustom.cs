@@ -82,7 +82,8 @@ namespace Sea_batle.Assistans
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Bottom,
                 Content = "Œ ",
-                Style = buttonStyle
+                Style = buttonStyle,
+                IsDefault = true
             };
 
             _okBtn.Click += OK_Click;
