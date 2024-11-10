@@ -5,6 +5,7 @@ using System.Windows.Media.Imaging;
 
 namespace Sea_batle.Assistans
 {
+    // импортированный класс
     public class MessageBoxCustom
     {
         private readonly string _view;

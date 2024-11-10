@@ -1,5 +1,6 @@
 ﻿using Sea_batle.Assistans;
 using Sea_batle.Pages;
+using Sea_batle.Windows;
 
 namespace Sea_batle.Game
 {
@@ -227,6 +228,9 @@ namespace Sea_batle.Game
 
             MessageBoxCustom message = new MessageBoxCustom("Information", winner, "Победа!", new Uri("pack://application:,,,/img/Icons/Information.png"));
             message.ShowMessage();
+
+            RestartWindow restart = new RestartWindow();
+            restart.ShowDialog();
         }
     }
 }

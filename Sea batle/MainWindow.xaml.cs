@@ -1,4 +1,7 @@
-﻿using Sea_batle.Pages;
+﻿using Sea_batle.Assistans;
+using Sea_batle.Pages;
+using Sea_batle.Windows;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 
