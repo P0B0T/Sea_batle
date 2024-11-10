@@ -91,19 +91,13 @@ namespace Sea_batle.Game
                         if (shotFired)
                         {
                             if (_playerMap.Cells[nextRow, nextCol].HasShip)
-                            {
                                 hitPositions.Add((nextRow, nextCol));
-                            }
                             else
-                            {
                                 currentDirection = ReverseDirection(currentDirection.Value);
-                            }
                         }
                     }
                     else
-                    {
                         currentDirection = ReverseDirection(currentDirection.Value);
-                    }
                 }
 
                 if (!shotFired && hitPositions.Count > 1)
@@ -119,25 +113,17 @@ namespace Sea_batle.Game
                         shotFired = Shoot(_playerMap, nextRow, nextCol, _playerFleet);
 
                         if (shotFired && _playerMap.Cells[nextRow, nextCol].HasShip)
-                        {
                             hitPositions.Insert(0, (nextRow, nextCol));
-                        }
                     }
 
                     if (shotFired)
-                    {
-                        var ship = _playerFleet.Fleet.FirstOrDefault(s => s.IsLocatedAt(lastHit.Item1, lastHit.Item2));
-
-                        if (ship != null && ship.Sunk)
-                        {
-                            hitPositions.Clear();
-                        }
-                    }
+                        HitsClean(lastHit.Item1, lastHit.Item2);
                 }
 
                 if (!shotFired)
                 {
                     var neighbors = GetAvailableNeighbors(lastHitPosition.Item1, lastHitPosition.Item2);
+
                     foreach (var neighbor in neighbors)
                     {
                         var nextRow = neighbor.Item1;
@@ -152,26 +138,18 @@ namespace Sea_batle.Game
                                 hitPositions.Add((nextRow, nextCol));
                                 currentDirection = DetermineDirection(lastHitPosition, (nextRow, nextCol));
                             }
+
                             break;
                         }
                     }
                 }
 
                 if (shotFired)
-                {
-                    var ship = _playerFleet.Fleet.FirstOrDefault(s => s.IsLocatedAt(lastHitPosition.Item1, lastHitPosition.Item2));
-
-                    if (ship != null && ship.Sunk)
-                    {
-                        hitPositions.Clear();
-                    }
-                }
+                    HitsClean(lastHitPosition.Item1, lastHitPosition.Item2);
             }
 
             if (!shotFired)
-            {
                 ShootRandom();
-            }
 
             _gamePage?.RotateArrow(360);
 
@@ -184,6 +162,7 @@ namespace Sea_batle.Game
         private void ShootRandom()
         {
             int row, col;
+
             do
             {
                 row = _random.Next(0, _playerMap.GetMapSize());
@@ -193,57 +172,49 @@ namespace Sea_batle.Game
             if (Shoot(_playerMap, row, col, _playerFleet))
             {
                 if (_playerMap.Cells[row, col].HasShip)
-                {
                     hitPositions.Add((row, col));
-                }
 
-                var ship = _playerFleet.Fleet.FirstOrDefault(s => s.IsLocatedAt(row, col));
-
-                if (ship != null && ship.Sunk)
-                {
-                    hitPositions.Clear();
-                }
+                HitsClean(row, col);
             }
         }
 
-        private (int dx, int dy) ReverseDirection((int dx, int dy) direction)
+        private void HitsClean(int row, int col)
         {
-            return (-direction.dx, -direction.dy);
+            var ship = _playerFleet.Fleet.FirstOrDefault(s => s.IsLocatedAt(row, col));
+
+            if (ship != null && ship.Sunk)
+                hitPositions.Clear();
         }
+
+        private (int dx, int dy) ReverseDirection((int dx, int dy) direction) => (-direction.dx, -direction.dy);
 
         private (int dx, int dy)? DetermineDirection((int, int) firstHit, (int, int) secondHit)
         {
             int dx = secondHit.Item2 - firstHit.Item2;
             int dy = secondHit.Item1 - firstHit.Item1;
 
-            if (dx == 0)
+            return dx switch
             {
-                return (0, dy > 0 ? 1 : -1);
-            }
-            else if (dy == 0)
-            {
-                return (dx > 0 ? 1 : -1, 0);
-            }
-
-            return null;
+                0 => (0, dy > 0 ? 1 : -1),
+                _ when dy == 0 => (dx > 0 ? 1 : -1, 0),
+                _ => null
+            };
         }
 
-        private bool IsWithinBounds(int row, int col)
-        {
-            return row >= 0 && row < _playerMap.GetMapSize() && col >= 0 && col < _playerMap.GetMapSize();
-        }
+        private bool IsWithinBounds(int row, int col) => row >= 0 && row < _playerMap.GetMapSize() && col >= 0 && col < _playerMap.GetMapSize();
+
+        private readonly (int row, int col)[] directions = { (-1, 0), (1, 0), (0, -1), (0, 1) };
 
         private List<(int, int)> GetAvailableNeighbors(int row, int col)
         {
             var neighbors = new List<(int, int)>();
 
-            if (row > 0 && !_playerMap.Cells[row - 1, col].IsHit) neighbors.Add((row - 1, col));
-
-            if (row < _playerMap.GetMapSize() - 1 && !_playerMap.Cells[row + 1, col].IsHit) neighbors.Add((row + 1, col));
-
-            if (col > 0 && !_playerMap.Cells[row, col - 1].IsHit) neighbors.Add((row, col - 1));
-
-            if (col < _playerMap.GetMapSize() - 1 && !_playerMap.Cells[row, col + 1].IsHit) neighbors.Add((row, col + 1));
+            foreach (var (dx, dy) in directions)
+            {
+                int newRow = row + dx, newCol = col + dy;
+                if (IsWithinBounds(newRow, newCol) && !_playerMap.Cells[newRow, newCol].IsHit)
+                    neighbors.Add((newRow, newCol));
+            }
 
             return neighbors;
         }
