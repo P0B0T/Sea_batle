@@ -13,6 +13,8 @@ namespace Sea_batle.Game
         private GamePage? _gamePage;
 
         private bool _isPlayerTurn = true;
+        private bool _isMissed = false;
+        private bool _shotFired = false;
 
         private readonly Action _redrawAction;
 
@@ -30,137 +32,182 @@ namespace Sea_batle.Game
             _redrawAction = redrawAction;
         }
 
-        private bool Shoot(Map.Map map, int row, int col, FleetManager fleet)
+        private ShootStatus Shoot(Map.Map map, int row, int col, FleetManager fleet)
         {
             var cell = map.Cells[row, col];
 
-            if (cell.IsHit || cell.IsMiss) return false;
+            if (cell.IsHit || cell.IsMiss) return ShootStatus.Error;
 
             if (cell.HasShip)
             {
                 cell.IsHit = true;
 
                 fleet.CheckAndShowSunkShips(row, col);
+
+                return ShootStatus.Hit;
             }
             else
+            {
                 cell.IsMiss = true;
 
-            return true;
+                return ShootStatus.Miss;
+            }
         }
 
         public async void PlayerMove(int row, int col)
         {
             if (!_isPlayerTurn) return;
 
-            if (!Shoot(_botMap, row, col, _botFleet)) return;
+            ShootStatus hit = Shoot(_botMap, row, col, _botFleet);
 
-            _isPlayerTurn = false;
-
-            _gamePage?.RotateArrow(180);
+            if (hit == ShootStatus.Error) return;
 
             _redrawAction.Invoke();
 
             if (IsGameOver())
-                EndGame();
-            else
             {
+                EndGame();
+
+                return;
+            }
+
+            if (hit == ShootStatus.Miss)
+            {
+                _isPlayerTurn = false;
+
+                _gamePage?.RotateArrow(180);
+
                 await Task.Delay(1500);
 
                 BotMove();
-
-                _isPlayerTurn = true;
             }
         }
 
-        private void BotMove()
+        private void CheckMetrics(int row, int col)
         {
-            bool shotFired = false;
+            var shootStatus = Shoot(_playerMap, row, col, _playerFleet);
 
-            if (hitPositions.Count > 0)
+            _shotFired = (shootStatus == ShootStatus.Hit || shootStatus == ShootStatus.Miss) ? true : false;
+
+            _isMissed = shootStatus == ShootStatus.Miss ? true : false;
+        }
+
+        private async void BotMove()
+        {
+            _isMissed = false;
+
+            while (!_isMissed)
             {
-                var lastHitPosition = hitPositions.Last();
+                _shotFired = false;
 
-                if (currentDirection.HasValue)
+                if (hitPositions.Count > 0)
                 {
-                    int nextRow = lastHitPosition.Item1 + currentDirection.Value.dy;
-                    int nextCol = lastHitPosition.Item2 + currentDirection.Value.dx;
+                    var lastHitPosition = hitPositions.Last();
 
-                    if (IsWithinBounds(nextRow, nextCol) && !_playerMap.Cells[nextRow, nextCol].IsHit && !_playerMap.Cells[nextRow, nextCol].IsMiss)
+                    if (currentDirection.HasValue)
                     {
-                        shotFired = Shoot(_playerMap, nextRow, nextCol, _playerFleet);
+                        int nextRow = lastHitPosition.Item1 + currentDirection.Value.dy;
+                        int nextCol = lastHitPosition.Item2 + currentDirection.Value.dx;
 
-                        if (shotFired)
+                        if (IsWithinBounds(nextRow, nextCol) && !_playerMap.Cells[nextRow, nextCol].IsHit && !_playerMap.Cells[nextRow, nextCol].IsMiss)
                         {
-                            if (_playerMap.Cells[nextRow, nextCol].HasShip)
-                                hitPositions.Add((nextRow, nextCol));
-                            else
-                                currentDirection = ReverseDirection(currentDirection.Value);
-                        }
-                    }
-                    else
-                        currentDirection = ReverseDirection(currentDirection.Value);
-                }
+                            CheckMetrics(nextRow, nextCol);
 
-                if (!shotFired && hitPositions.Count > 1)
-                {
-                    var firstHit = hitPositions.First();
-                    var lastHit = hitPositions.Last();
+                            _redrawAction.Invoke();
 
-                    var nextRow = firstHit.Item1 + currentDirection.Value.dy;
-                    var nextCol = firstHit.Item2 + currentDirection.Value.dx;
+                            await Task.Delay(500);
 
-                    if (IsWithinBounds(nextRow, nextCol) && !_playerMap.Cells[nextRow, nextCol].IsHit && !_playerMap.Cells[nextRow, nextCol].IsMiss)
-                    {
-                        shotFired = Shoot(_playerMap, nextRow, nextCol, _playerFleet);
-
-                        if (shotFired && _playerMap.Cells[nextRow, nextCol].HasShip)
-                            hitPositions.Insert(0, (nextRow, nextCol));
-                    }
-
-                    if (shotFired)
-                        HitsClean(lastHit.Item1, lastHit.Item2);
-                }
-
-                if (!shotFired)
-                {
-                    var neighbors = GetAvailableNeighbors(lastHitPosition.Item1, lastHitPosition.Item2);
-
-                    foreach (var neighbor in neighbors)
-                    {
-                        var nextRow = neighbor.Item1;
-                        var nextCol = neighbor.Item2;
-
-                        shotFired = Shoot(_playerMap, nextRow, nextCol, _playerFleet);
-
-                        if (shotFired)
-                        {
-                            if (_playerMap.Cells[nextRow, nextCol].HasShip)
+                            if (_shotFired)
                             {
-                                hitPositions.Add((nextRow, nextCol));
-                                currentDirection = DetermineDirection(lastHitPosition, (nextRow, nextCol));
+                                if (_playerMap.Cells[nextRow, nextCol].HasShip)
+                                    hitPositions.Add((nextRow, nextCol));
+                                else
+                                    currentDirection = ReverseDirection(currentDirection.Value);
+                            }
+                        }
+                        else
+                            currentDirection = ReverseDirection(currentDirection.Value);
+                    }
+
+                    if (!_shotFired && hitPositions.Count > 1)
+                    {
+                        var firstHit = hitPositions.First();
+
+                        int nextRow = firstHit.Item1 + currentDirection.Value.dy;
+                        int nextCol = firstHit.Item2 + currentDirection.Value.dx;
+
+                        if (IsWithinBounds(nextRow, nextCol) && !_playerMap.Cells[nextRow, nextCol].IsHit && !_playerMap.Cells[nextRow, nextCol].IsMiss)
+                        {
+                            CheckMetrics(nextRow, nextCol);
+
+                            _redrawAction.Invoke();
+
+                            await Task.Delay(500);
+
+                            if (_shotFired && _playerMap.Cells[nextRow, nextCol].HasShip)
+                                hitPositions.Insert(0, (nextRow, nextCol));
+                        }
+
+                        if (_shotFired)
+                            HitsClean(lastHitPosition.Item1, lastHitPosition.Item2);
+                    }
+
+                    if (!_shotFired)
+                    {
+                        var neighbors = GetAvailableNeighbors(lastHitPosition.Item1, lastHitPosition.Item2);
+
+                        foreach (var neighbor in neighbors)
+                        {
+                            int nextRow = neighbor.Item1;
+                            int nextCol = neighbor.Item2;
+
+                            CheckMetrics(nextRow, nextCol);
+
+                            if (_shotFired)
+                            {
+                                if (_playerMap.Cells[nextRow, nextCol].HasShip)
+                                {
+                                    hitPositions.Add((nextRow, nextCol));
+
+                                    currentDirection = DetermineDirection(lastHitPosition, (nextRow, nextCol));
+                                }
+                                break;
                             }
 
-                            break;
+                            _redrawAction.Invoke();
+                            await Task.Delay(500);
                         }
                     }
+
+                    if (_shotFired)
+                        HitsClean(lastHitPosition.Item1, lastHitPosition.Item2);
                 }
 
-                if (shotFired)
-                    HitsClean(lastHitPosition.Item1, lastHitPosition.Item2);
-            }
+                if (!_shotFired)
+                {
+                    _isMissed = ShootRandom();
 
-            if (!shotFired)
-                ShootRandom();
+                    _redrawAction.Invoke();
+
+                    await Task.Delay(500);
+                }
+
+                if (IsGameOver())
+                {
+                    EndGame();
+
+                    return;
+                }
+            }
 
             _gamePage?.RotateArrow(360);
 
-            _redrawAction.Invoke();
+            _isPlayerTurn = true;
 
-            if (IsGameOver())
-                EndGame();
+            _redrawAction.Invoke();
         }
 
-        private void ShootRandom()
+        private bool ShootRandom()
         {
             int row, col;
 
@@ -168,15 +215,22 @@ namespace Sea_batle.Game
             {
                 row = _random.Next(0, _playerMap.GetMapSize());
                 col = _random.Next(0, _playerMap.GetMapSize());
-            } while (_playerMap.Cells[row, col].IsHit || _playerMap.Cells[row, col].IsMiss);
+            } 
+            while (_playerMap.Cells[row, col].IsHit || _playerMap.Cells[row, col].IsMiss);
 
-            if (Shoot(_playerMap, row, col, _playerFleet))
+            ShootStatus shotFired = Shoot(_playerMap, row, col, _playerFleet);
+
+            if (shotFired == ShootStatus.Hit)
             {
                 if (_playerMap.Cells[row, col].HasShip)
                     hitPositions.Add((row, col));
 
                 HitsClean(row, col);
             }
+
+            if (shotFired == ShootStatus.Miss) return true;
+
+            return false;
         }
 
         private void HitsClean(int row, int col)

@@ -24,7 +24,7 @@ namespace Sea_batle.Pages
 
         private void Page_Initialized(object sender, EventArgs e) => _fleet = new FleetManager(_map, _cellSize, FieldCanv, Ships, RedrawFieldAndShips);
 
-        private void BackBtn_Click(object sender, RoutedEventArgs e) => NavigationService.GoBack();
+        private void BackBtn_Click(object sender, RoutedEventArgs e) => _mainWindow.OutputFrame.Navigate(new MenuPage());
 
         private (int X, int Y) CalcCoordXY(Point position) =>
             ((int)(position.X / _cellSize), (int)(position.Y / _cellSize));
